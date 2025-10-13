@@ -23,7 +23,7 @@ private object ColorPalette {
 }
 
 
-object SiriaTemplateColorScheme {
+object AutoAdventureColorScheme {
     val primary = ColorPalette.primary
     val secondary = ColorPalette.secondary
 
@@ -59,16 +59,16 @@ private fun ColorPreviewBox(colorName: String, color: Color) {
 @Preview(apiLevel = 34)
 @Composable
 private fun ColorPreview() {
-    SiriaTemplateTheme {
+    AutoAdventureTheme {
         Column {
-            ColorPreviewBox("Primary", SiriaTemplateColorScheme.primary)
-            ColorPreviewBox("Secondary", SiriaTemplateColorScheme.secondary)
-            ColorPreviewBox("Background", SiriaTemplateColorScheme.background)
-            ColorPreviewBox("Surface", SiriaTemplateColorScheme.surface)
-            ColorPreviewBox("Common Text", SiriaTemplateColorScheme.commonText)
-            ColorPreviewBox("Description Text", SiriaTemplateColorScheme.descriptionText)
-            ColorPreviewBox("Icon Tint", SiriaTemplateColorScheme.iconTint)
-            ColorPreviewBox("Bottom Nav Icon Tint", SiriaTemplateColorScheme.bottomNavIconTint)
+            ColorPreviewBox("Primary", AutoAdventureColorScheme.primary)
+            ColorPreviewBox("Secondary", AutoAdventureColorScheme.secondary)
+            ColorPreviewBox("Background", AutoAdventureColorScheme.background)
+            ColorPreviewBox("Surface", AutoAdventureColorScheme.surface)
+            ColorPreviewBox("Common Text", AutoAdventureColorScheme.commonText)
+            ColorPreviewBox("Description Text", AutoAdventureColorScheme.descriptionText)
+            ColorPreviewBox("Icon Tint", AutoAdventureColorScheme.iconTint)
+            ColorPreviewBox("Bottom Nav Icon Tint", AutoAdventureColorScheme.bottomNavIconTint)
         }
     }
 }

@@ -1,0 +1,44 @@
+[
+  {
+    "item_id": 1,
+    "name": "초보자용 포션",
+    "short_desc": "HP를 약간 회복시켜주는 포션",
+    "full_desc": "가장 기본적인 회복 포션으로, 누구나 쉽게 사용할 수 있습니다. HP를 30만큼 회복시킵니다.",
+    "category": "HEALING",
+    "weight": 0.1,
+    "max_stack_size": 99,
+    "obtain_method": ["MONSTER_DROP", "QUEST_REWARD", "SHOP"],
+    "is_sellable": true,
+    "buy_price": 10,
+    "sell_price": 5,
+    "is_usable": true
+  },
+  {
+    "item_id": 2,
+    "name": "낡은 스크롤",
+    "short_desc": "특별한 효과가 없어보이는 스크롤",
+    "full_desc": "아무 내용도 적혀있지 않은 양피지. 뛰어난 마법사가 마력을 불어넣으면, 어떤 효과가 발생할지도?",
+    "category": "SCROLL",
+    "weight": 1.5,
+    "max_stack_size": 1,
+    "obtain_method": ["QUEST_REWARD", "SHOP"],
+    "is_sellable": true,
+    "buy_price": 50,
+    "sell_price": 20,
+    "is_usable": false
+  },
+  {
+    "item_id": 3,
+    "name": "슬라임의 점액",
+    "short_desc": "끈적끈적한 슬라임의 점액",
+    "full_desc": "슬라임을 처치하면 얻을 수 있는 아이템. 다양한 조합 아이템의 재료로 사용됩니다.",
+    "category": "INGREDIENT",
+    "weight": 0.2,
+    "max_stack_size": 999,
+    "obtain_method": ["MONSTER_DROP"],
+    "is_sellable": true,
+    "buy_price": 0,
+    "sell_price": 2,
+    "is_usable": false
+  }
+]

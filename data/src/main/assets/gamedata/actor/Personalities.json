@@ -1,0 +1,34 @@
+[
+  {
+    "personality_id": 1,
+    "name": "용감한",
+    "increase_target": "STRENGTH",
+    "increase_amount": 1,
+    "decrease_target": "INTELLIGENCE",
+    "decrease_amount": 1
+  },
+  {
+    "personality_id": 2,
+    "name": "신중한",
+    "increase_target": "INTELLIGENCE",
+    "increase_amount": 1,
+    "decrease_target": "STRENGTH",
+    "decrease_amount": 1
+  },
+  {
+    "personality_id": 3,
+    "name": "재빠른",
+    "increase_target": "AGILITY",
+    "increase_amount": 1,
+    "decrease_target": "LUCK",
+    "decrease_amount": 1
+  },
+  {
+    "personality_id": 4,
+    "name": "운이 좋은",
+    "increase_target": "LUCK",
+    "increase_amount": 1,
+    "decrease_target": "AGILITY",
+    "decrease_amount": 1
+  }
+]

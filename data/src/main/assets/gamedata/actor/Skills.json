@@ -1,0 +1,72 @@
+[
+  {
+    "skill_id": 1001,
+    "name": "Power Strike",
+    "description": "A strong physical attack that deals extra damage.",
+    "max_skill_level": 5,
+    "skill_element_type": "NONE",
+    "activation_type": "ACTIVE",
+    "mp_usage": 10,
+    "mp_usage_decrease_amount": 1,
+    "multiplier": 1.5,
+    "multiplier_increase_amount": 0.2,
+    "hit_rate": 0.95,
+    "prerequisite_skills": []
+  },
+  {
+    "skill_id": 1002,
+    "name": "Fireball",
+    "description": "Shoots a fireball that explodes on impact.",
+    "max_skill_level": 7,
+    "skill_element_type": "FIRE",
+    "activation_type": "ACTIVE",
+    "mp_usage": 15,
+    "mp_usage_decrease_amount": 2,
+    "multiplier": 1.8,
+    "multiplier_increase_amount": 0.25,
+    "hit_rate": 0.9,
+    "prerequisite_skills": []
+  },
+  {
+    "skill_id": 1003,
+    "name": "Flame Burst",
+    "description": "Unleashes a burst of flames, stronger than Fireball.",
+    "max_skill_level": 5,
+    "skill_element_type": "FIRE",
+    "activation_type": "ACTIVE",
+    "mp_usage": 20,
+    "mp_usage_decrease_amount": 3,
+    "multiplier": 2.5,
+    "multiplier_increase_amount": 0.3,
+    "hit_rate": 0.85,
+    "prerequisite_skills": [1002]
+  },
+  {
+    "skill_id": 1004,
+    "name": "Focus",
+    "description": "Temporarily increases magic damage for a short duration.",
+    "max_skill_level": 3,
+    "skill_element_type": "NONE",
+    "activation_type": "PASSIVE",
+    "mp_usage": 0,
+    "mp_usage_decrease_amount": 0,
+    "multiplier": 0.0,
+    "multiplier_increase_amount": 0.0,
+    "hit_rate": 0.0,
+    "prerequisite_skills": []
+  },
+  {
+    "skill_id": 1005,
+    "name": "Inferno Blast",
+    "description": "A devastating explosion of fire magic.",
+    "max_skill_level": 3,
+    "skill_element_type": "FIRE",
+    "activation_type": "ACTIVE",
+    "mp_usage": 30,
+    "mp_usage_decrease_amount": 5,
+    "multiplier": 3.5,
+    "multiplier_increase_amount": 0.5,
+    "hit_rate": 0.8,
+    "prerequisite_skills": [1002, 1003]
+  }
+]

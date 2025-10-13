@@ -10,11 +10,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.siriaTemplate"
+    namespace = "com.example.autoAdventure"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.example.siriaTemplate"
+        applicationId = "com.example.autoAdventure"
         minSdk = 26
         targetSdk = 36
         versionCode = 1

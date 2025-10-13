@@ -8,8 +8,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.presentation.component.theme.SiriaTemplateColorScheme
-import com.example.presentation.component.theme.SiriaTemplateTheme
+import com.example.presentation.component.theme.AutoAdventureColorScheme
+import com.example.presentation.component.theme.AutoAdventureTheme
 import com.example.presentation.component.ui.Space16
 import com.example.presentation.component.ui.atom.BasicButton
 import com.example.presentation.component.ui.atom.BasicDialog
@@ -27,13 +27,13 @@ fun ErrorDialog(
         Text(
             text = directErrorTitle,
             style = MaterialTheme.typography.headlineMedium,
-            color = SiriaTemplateColorScheme.commonText,
+            color = AutoAdventureColorScheme.commonText,
             modifier = Modifier.padding(bottom = 4.dp)
         )
         Text(
             text = directErrorMessage ?: errorDialogState.userMessage,
             style = MaterialTheme.typography.bodyMedium,
-            color = SiriaTemplateColorScheme.descriptionText,
+            color = AutoAdventureColorScheme.descriptionText,
             softWrap = true,
             maxLines = 4,
             overflow = TextOverflow.Ellipsis
@@ -52,7 +52,7 @@ fun ErrorDialog(
 @Preview(apiLevel = 34)
 @Composable
 private fun ErrorDialogPreview() {
-    SiriaTemplateTheme {
+    AutoAdventureTheme {
         ErrorDialog(
             errorDialogState = ErrorDialogState(
                 userMessage = "뭔가 문제생긴 것 같음 ㄷㄷㄷ",

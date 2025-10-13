@@ -1,6 +1,7 @@
 package com.example.data.common.di.preference
 
 import android.content.Context
+import com.example.data.remote.feature.guild.dao.GuildPreferenceProvider
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -14,7 +15,7 @@ object PreferenceModule {
 
     @Provides
     @Singleton
-    fun provideUserPreference(@ApplicationContext context: Context): UserPreferenceProvider {
-        return UserPreferenceProvider(context)
+    fun provideUserPreference(@ApplicationContext context: Context): GuildPreferenceProvider {
+        return GuildPreferenceProvider(context)
     }
 }

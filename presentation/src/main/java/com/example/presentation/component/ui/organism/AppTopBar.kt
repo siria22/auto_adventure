@@ -25,14 +25,14 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.presentation.component.theme.SiriaTemplateColorScheme
-import com.example.presentation.component.theme.SiriaTemplateTheme
+import com.example.presentation.component.theme.AutoAdventureColorScheme
+import com.example.presentation.component.theme.AutoAdventureTheme
 
 @Composable
 fun AppTopBar(
     modifier: Modifier = Modifier,
     topBarInfo: TopBarInfo,
-    background: Color = SiriaTemplateColorScheme.background,
+    background: Color = AutoAdventureColorScheme.background,
 ) {
     Row(
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -52,7 +52,7 @@ fun AppTopBar(
         Box(modifier = Modifier.weight(6f)) {
             Text(
                 text = topBarInfo.text,
-                color = SiriaTemplateColorScheme.commonText,
+                color = AutoAdventureColorScheme.commonText,
                 style = MaterialTheme.typography.headlineMedium,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
@@ -90,7 +90,7 @@ private fun TopBarLeadingIcon(
     if (isLeadingIconAvailable) {
         Icon(
             imageVector = iconResource,
-            tint = SiriaTemplateColorScheme.iconTint,
+            tint = AutoAdventureColorScheme.iconTint,
             contentDescription = "Leading Icon",
             modifier = modifier
                 .clickable { onLeadingIconClicked() }
@@ -112,7 +112,7 @@ private fun TopBarTrailingIcon(
     if (isTrailingIconAvailable) {
         Icon(
             imageVector = iconResource,
-            tint = SiriaTemplateColorScheme.iconTint,
+            tint = AutoAdventureColorScheme.iconTint,
             contentDescription = "Trailing Icon",
             modifier = modifier
                 .clickable { onTrailingIconClicked() }
@@ -127,7 +127,7 @@ private fun TopBarTrailingIcon(
 @Preview(apiLevel = 34)
 @Composable
 private fun AppTopBarPreview() {
-    SiriaTemplateTheme {
+    AutoAdventureTheme {
         val textList = listOf(
             "Short example",
             "LOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOONG Example",

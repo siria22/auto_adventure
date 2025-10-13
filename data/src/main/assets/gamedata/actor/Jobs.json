@@ -1,0 +1,38 @@
+[
+  {
+    "job_id": 1,
+    "name_kor": "전사",
+    "name_eng": "WARRIOR",
+    "description": "강력한 힘과 체력을 바탕으로 근접 전투를 이끌어가는 직업입니다."
+  },
+  {
+    "job_id": 2,
+    "name_kor": "기사",
+    "name_eng": "KNIGHT",
+    "description": "굳건한 방어력으로 아군을 보호하는 든든한 방패 역할을 합니다."
+  },
+  {
+    "job_id": 3,
+    "name_kor": "버서커",
+    "name_eng": "BERSERKER",
+    "description": "자신의 HP를 대가로 파괴적인 공격을 퍼붓는 광전사입니다."
+  },
+  {
+    "job_id": 4,
+    "name_kor": "궁수",
+    "name_eng": "ARCHER",
+    "description": "민첩한 몸놀림으로 원거리에서 적을 정확하게 공격합니다."
+  },
+  {
+    "job_id": 5,
+    "name_kor": "레인저",
+    "name_eng": "RANGER",
+    "description": "자연의 힘을 빌려 다양한 함정과 기술을 사용하는 명사수입니다."
+  },
+  {
+    "job_id": 6,
+    "name_kor": "스나이퍼",
+    "name_eng": "SNIPER",
+    "description": "치명적인 한 발로 전세를 뒤집는 저격의 대가입니다."
+  }
+]

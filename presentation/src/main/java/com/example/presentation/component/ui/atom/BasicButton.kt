@@ -13,8 +13,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.presentation.component.theme.SiriaTemplateColorScheme
-import com.example.presentation.component.theme.SiriaTemplateTheme
+import com.example.presentation.component.theme.AutoAdventureColorScheme
+import com.example.presentation.component.theme.AutoAdventureTheme
 
 @Composable
 fun BasicButton(
@@ -24,15 +24,15 @@ fun BasicButton(
     modifier: Modifier = Modifier
 ) {
     val buttonColor = when (type) {
-        ButtonType.PRIMARY -> SiriaTemplateColorScheme.primaryButtonColor
-        ButtonType.SECONDARY -> SiriaTemplateColorScheme.secondaryButtonColor
-        ButtonType.DEFAULT -> SiriaTemplateColorScheme.surface
+        ButtonType.PRIMARY -> AutoAdventureColorScheme.primaryButtonColor
+        ButtonType.SECONDARY -> AutoAdventureColorScheme.secondaryButtonColor
+        ButtonType.DEFAULT -> AutoAdventureColorScheme.surface
     }
 
     val textColor = when (type) {
-        ButtonType.PRIMARY -> SiriaTemplateColorScheme.onPrimaryButtonColor
-        ButtonType.SECONDARY -> SiriaTemplateColorScheme.onSecondaryButtonColor
-        ButtonType.DEFAULT -> SiriaTemplateColorScheme.commonText
+        ButtonType.PRIMARY -> AutoAdventureColorScheme.onPrimaryButtonColor
+        ButtonType.SECONDARY -> AutoAdventureColorScheme.onSecondaryButtonColor
+        ButtonType.DEFAULT -> AutoAdventureColorScheme.commonText
     }
 
     Box(
@@ -58,7 +58,7 @@ enum class ButtonType {
 @Preview
 @Composable
 private fun AppButtonPreview() {
-    SiriaTemplateTheme {
+    AutoAdventureTheme {
         BasicButton(
             text = "Button",
             onClicked = {},

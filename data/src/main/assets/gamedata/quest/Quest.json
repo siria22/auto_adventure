@@ -1,0 +1,44 @@
+[
+  {
+    "quest_id": 1001,
+    "dungeon_id": 3,
+    "required_guild_level": 1,
+    "quest_level": 5,
+    "name": "고블린 소굴 정찰",
+    "description": "가장 바깥의 고블린 소굴을 정찰하고, 잔당을 소탕하라.",
+    "reward_exp": 500,
+    "reward_gold": 150,
+    "reward_item_id": [2001],
+    "reward_item_amount": [2],
+    "quest_type": "ELIMINATION",
+    "clear_condition": "고블린 10마리 처치"
+  },
+  {
+    "quest_id": 1002,
+    "dungeon_id": 4,
+    "required_guild_level": 2,
+    "quest_level": 8,
+    "name": "잃어버린 약초 가방",
+    "description": "약초를 채집하러 간 연금술사가 가방을 잃어버렸다. 주변 몬스터를 처치하여 회수하라.",
+    "reward_exp": 800,
+    "reward_gold": 220,
+    "reward_item_id": [2002, 2005],
+    "reward_item_amount": [1, 3],
+    "quest_type": "COLLECT",
+    "clear_condition": "약초 가방 1개 회수"
+  },
+  {
+    "quest_id": 1003,
+    "dungeon_id": 5,
+    "required_guild_level": 3,
+    "quest_level": 10,
+    "name": "화염의 시험",
+    "description": "불의 던전에 있는 '화염 정령'을 처치하여 시험을 통과하라.",
+    "reward_exp": 1500,
+    "reward_gold": 300,
+    "reward_item_id": [2010],
+    "reward_item_amount": [1],
+    "quest_type": "BOSS",
+    "clear_condition": "화염 정령 보스 1회 처치"
+  }
+]

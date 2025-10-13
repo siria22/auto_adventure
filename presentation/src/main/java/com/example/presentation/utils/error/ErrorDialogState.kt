@@ -9,7 +9,7 @@ data class ErrorDialogState(
 ) {
     fun logErrorEvent() {
         Log.e(
-            "SiriaTemplate",
+            "AutoAdventure",
             "userMessage : $userMessage\nexceptionMessage : ${exceptionMessage ?: "Unknown error"}"
         )
     }

@@ -19,7 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.presentation.component.theme.SiriaTemplateColorScheme
+import com.example.presentation.component.theme.AutoAdventureColorScheme
 import com.example.presentation.component.ui.LargeRoundedCorner
 
 /**
@@ -51,7 +51,7 @@ fun BasicDialog(
             modifier = modifier
                 .align(Alignment.Center)
                 .background(
-                    color = SiriaTemplateColorScheme.background,
+                    color = AutoAdventureColorScheme.background,
                     shape = LargeRoundedCorner
                 )
                 .padding(24.dp)
@@ -76,12 +76,12 @@ private fun BasicDialogPreview() {
             Text(
                 text = "Sample Text",
                 style = MaterialTheme.typography.bodyMedium,
-                color = SiriaTemplateColorScheme.descriptionText
+                color = AutoAdventureColorScheme.descriptionText
             )
             Text(
                 text = "Sample Text",
                 style = MaterialTheme.typography.headlineSmall,
-                color = SiriaTemplateColorScheme.commonText
+                color = AutoAdventureColorScheme.commonText
             )
         }
     }

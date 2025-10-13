@@ -21,7 +21,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "siriaTemplate"
+rootProject.name = "autoAdventure"
 include(":app")
 include(":presentation")
 include(":domain")

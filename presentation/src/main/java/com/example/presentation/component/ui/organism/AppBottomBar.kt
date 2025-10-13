@@ -24,8 +24,8 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.presentation.R
 import com.example.presentation.utils.nav.safePopBackStack
-import com.example.presentation.component.theme.SiriaTemplateColorScheme
-import com.example.presentation.component.theme.SiriaTemplateTheme
+import com.example.presentation.component.theme.AutoAdventureColorScheme
+import com.example.presentation.component.theme.AutoAdventureTheme
 
 /**
  * Bottom Navigation Bar
@@ -101,7 +101,7 @@ private fun BottomNavItem(
     modifier: Modifier,
     onClicked: () -> Unit
 ) {
-    val selectedColor = SiriaTemplateColorScheme.primary
+    val selectedColor = AutoAdventureColorScheme.primary
     val unselectedColor = Color.White
 
     Column(
@@ -157,7 +157,7 @@ enum class CurrentBottomNav {
 @Preview
 @Composable
 private fun BottomNavigationBarPreview1() {
-    SiriaTemplateTheme {
+    AutoAdventureTheme {
         BottomNavigationBar(
             selectedItem = CurrentBottomNav.HOME,
             navController = rememberNavController()
