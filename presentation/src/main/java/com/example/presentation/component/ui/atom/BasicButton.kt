@@ -15,6 +15,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.presentation.component.theme.AutoAdventureColorScheme
 import com.example.presentation.component.theme.AutoAdventureTheme
+import com.example.presentation.component.ui.DefaultRoundedCorner
 
 @Composable
 fun BasicButton(
@@ -38,7 +39,7 @@ fun BasicButton(
     Box(
         modifier = modifier
             .clickable { onClicked() }
-            .background(buttonColor)
+            .background(buttonColor, DefaultRoundedCorner)
             .fillMaxWidth(),
         contentAlignment = Alignment.Center
     ) {

@@ -54,7 +54,7 @@ fun BasicDialog(
                     color = AutoAdventureColorScheme.background,
                     shape = LargeRoundedCorner
                 )
-                .padding(24.dp)
+                .padding(16.dp)
                 .fillMaxWidth(minimumWidth),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(8.dp)
