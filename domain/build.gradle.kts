@@ -22,6 +22,9 @@ dependencies {
     implementation(libs.hilt.core)
     ksp(libs.hilt.compiler)
 
+    //Kotlin coroutines
+    implementation(libs.kotlinx.coroutines.core)
+
     //Test
     testImplementation(libs.junit)
 }

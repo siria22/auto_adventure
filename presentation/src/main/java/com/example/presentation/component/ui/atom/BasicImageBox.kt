@@ -15,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.Dp
@@ -68,6 +69,41 @@ fun BasicImageBox(
                 contentScale = ContentScale.Crop
             )
         }
+
+        if (isLoading) {
+            CircularProgressIndicator()
+        }
+    }
+}
+
+@Composable
+fun BasicImageBox(
+    modifier: Modifier = Modifier,
+    size: Dp = 128.dp,
+    painterResource: Painter,
+) {
+    var isLoading by remember { mutableStateOf(true) }
+
+    Box(
+        modifier = modifier.size(size),
+        contentAlignment = Alignment.Center
+    ) {
+        AsyncImage(
+            model = ImageRequest.Builder(LocalContext.current)
+                .data(painterResource)
+                .crossfade(true)
+                .listener(
+                    onSuccess = { _, _ -> isLoading = false },
+                    onError = { _, _ -> isLoading = false }
+                )
+                .error(R.drawable.broken_image)
+                .build(),
+            modifier = Modifier
+                .matchParentSize()
+                .clip(RoundedCornerShape(4.dp)),
+            contentDescription = "이미지 콘텐츠",
+            contentScale = ContentScale.Crop
+        )
 
         if (isLoading) {
             CircularProgressIndicator()
