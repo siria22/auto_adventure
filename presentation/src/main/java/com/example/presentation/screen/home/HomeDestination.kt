@@ -10,13 +10,7 @@ import com.example.presentation.utils.nav.ScreenDestinations
 
 fun NavGraphBuilder.homeDestination(navController: NavController) {
     composable(
-        route = ScreenDestinations.Home.route,
-//        arguments = listOf(
-//            navArgument(name = "") {
-//                type = NavType.LongType
-//                defaultValue = 0L
-//            }
-//        ) -> if route contains arguments
+        route = ScreenDestinations.Home.route
     ) {
         val viewModel: HomeViewModel = hiltViewModel()
 
@@ -31,10 +25,12 @@ fun NavGraphBuilder.homeDestination(navController: NavController) {
         }
 
         val data: HomeData = let {
-            val someData by viewModel.someData.collectAsStateWithLifecycle()
+            val guildInfoData by viewModel.guildInfoData.collectAsStateWithLifecycle()
+            val guildMoney by viewModel.guildMoney.collectAsStateWithLifecycle()
 
             HomeData(
-                data = someData
+                guildInfoData = guildInfoData,
+                guildMoney = guildMoney
             )
         }
 

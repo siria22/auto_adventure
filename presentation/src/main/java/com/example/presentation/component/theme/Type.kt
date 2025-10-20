@@ -24,6 +24,10 @@ val NanumBarunGothic = FontFamily(
     Font(R.font.nanum_barun_gothic_ultra_light, FontWeight.Thin)
 )
 
+val DNFForgedBladeBold = FontFamily(
+    Font(R.font.dnf_forged_blade_bold, FontWeight.Bold),
+)
+
 val NanumTypography = Typography(
     titleLarge = TextStyle(
         fontFamily = NanumBarunGothic,
@@ -86,6 +90,16 @@ val NanumTypography = Typography(
         fontWeight = FontWeight.Normal,
         fontSize = 12.sp,
         lineHeight = 28.sp,
+        letterSpacing = 0.sp
+    ),
+)
+
+val DNFTypography = Typography(
+    titleLarge = TextStyle(
+        fontFamily = DNFForgedBladeBold,
+        fontWeight = FontWeight.Bold,
+        fontSize = 40.sp,
+        lineHeight = 42.sp,
         letterSpacing = 0.sp
     ),
 )

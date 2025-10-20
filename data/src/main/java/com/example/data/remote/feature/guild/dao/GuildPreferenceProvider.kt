@@ -22,7 +22,7 @@ class GuildPreferenceProvider(
 
     fun observeGuildName(): Flow<String> {
         return context.dataStore.data.map { prefs ->
-            prefs[guildName] ?: ""
+            prefs[guildName] ?: "My Guild"
         }
     }
 

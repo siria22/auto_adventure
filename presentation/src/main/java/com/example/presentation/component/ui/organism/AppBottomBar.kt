@@ -28,7 +28,7 @@ import com.example.presentation.component.theme.AutoAdventureColorScheme
 import com.example.presentation.component.theme.AutoAdventureTheme
 
 /**
- * Bottom Navigation Bar
+ * deprecated Bottom Bar (추후 협의 후 제거)
  *
  * @param selectedItem The currently selected item on the Bottom Navigation Bar
  * @param backgroundColor The background color of the Bottom Navigation Bar. Default is [Color.Transparent]
@@ -46,7 +46,6 @@ fun BottomNavigationBar(
             iconResourceId = R.drawable.history,
             bottomNavType = CurrentBottomNav.HISTORY,
             onClicked = {
-                // TODO : [Bottom Nav] Navigate to History Screen
                 // navController.safeNavigate(ScreenDestinations.History.route)
             }
         ),
@@ -63,7 +62,6 @@ fun BottomNavigationBar(
             iconResourceId = R.drawable.account_circle,
             bottomNavType = CurrentBottomNav.PROFILE,
             onClicked = {
-                // TODO : [Bottom Nav] Navigate to Profile Screen
                 // navController.safeNavigate(ScreenDestinations.Profile.route)
             }
         )

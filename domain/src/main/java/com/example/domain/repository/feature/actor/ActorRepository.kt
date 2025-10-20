@@ -7,4 +7,5 @@ interface ActorRepository {
     suspend fun getAllActors(): List<BaseActor>
     suspend fun getActorById(id: Long): BaseActor?
     suspend fun getActorByName(name: String): BaseActor?
+    suspend fun getRecruitedActorCount(): Int
 }
