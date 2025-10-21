@@ -19,7 +19,6 @@ data class Actor private constructor(
     val skills: List<ActorSkills>,
     val actions: List<ActorAction>
 ) {
-
     /**
      * Equips a new piece of armor to the actor.
      *

@@ -11,7 +11,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
-
 private object ColorPalette {
     val primary = Color(0xFF407ABF)
     val secondary = Color(0xFF637387)
@@ -22,20 +21,20 @@ private object ColorPalette {
     val negColor = Color(0xFFFFADA2)
 }
 
-
 object AutoAdventureColorScheme {
     val primary = ColorPalette.primary
     val secondary = ColorPalette.secondary
 
     val commonText = ColorPalette.darkSecondary
     val descriptionText = ColorPalette.secondary
+    val errorText = Color(0xFFFFADA2)
 
     val iconTint = ColorPalette.darkSecondary
     val inactivatedColor = Color(0xFFDEDEDE)
 
     val bottomNavIconTint = ColorPalette.secondary
 
-    val surface = Color(0xFFF2F2F5)
+    val surface = Color(0xFFC8C8C8)
     val background = ColorPalette.white
 
     val primaryButtonColor = ColorPalette.primary

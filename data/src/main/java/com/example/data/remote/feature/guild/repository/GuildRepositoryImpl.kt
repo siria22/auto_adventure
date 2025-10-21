@@ -2,6 +2,7 @@ package com.example.data.remote.feature.guild.repository
 
 import com.example.data.remote.feature.guild.dao.GuildPreferenceProvider
 import com.example.domain.repository.feature.guild.GuildRepository
+import com.example.domain.scripts.guild.GuildRank
 import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 
@@ -16,14 +17,6 @@ class GuildRepositoryImpl @Inject constructor(
         return guildPreferenceProvider.observeGuildName().first()
     }
 
-    override suspend fun updateGuildRank(rank: String) {
-        guildPreferenceProvider.updateGuildRank(rank)
-    }
-
-    override suspend fun getGuildRank(): String {
-        return guildPreferenceProvider.observeGuildRank().first()
-    }
-
     override suspend fun setGuildExp(value: Long) {
         guildPreferenceProvider.setGuildExp(value)
     }
@@ -32,8 +25,17 @@ class GuildRepositoryImpl @Inject constructor(
         guildPreferenceProvider.updateGuildExp(amount)
     }
 
-    override suspend fun getGuildExp(): Long {
+    override suspend fun getGuildTotalExp(): Long {
         return guildPreferenceProvider.observeGuildExp().first()
+    }
+
+    override suspend fun updateGuildRank(rank: GuildRank) {
+        guildPreferenceProvider.updateGuildRank(rank.name)
+    }
+
+    override suspend fun getGuildRank(): GuildRank {
+        val str = guildPreferenceProvider.observeGuildRank().first()
+        return GuildRank.valueOf(str)
     }
 
     override suspend fun setGold(value: Long) {

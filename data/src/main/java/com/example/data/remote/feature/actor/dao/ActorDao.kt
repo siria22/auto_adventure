@@ -19,4 +19,7 @@ interface ActorDao {
 
     @Query("SELECT * FROM actor WHERE name = :name")
     suspend fun getActorByName(name: String): ActorEntity?
+
+    @Query("SELECT COUNT(*) FROM actor WHERE recruited_at IS NOT NULL")
+    suspend fun getRecruitedActorCount(): Int
 }

@@ -7,8 +7,6 @@ import com.example.domain.model.feature.actor.base.BaseActor
 import com.example.domain.model.feature.actor.base.Job
 import com.example.domain.model.feature.actor.base.Personality
 import com.example.domain.model.feature.types.StatType
-import java.time.LocalDate
-import java.util.Date
 
 private val mockBaseActor = BaseActor(
     id = 0L,
@@ -40,7 +38,7 @@ private val mockJob = Job(
     jobId = 1L,
     nameKor = "전사",
     nameEng = "Warrior",
-    description= "전사입니다."
+    description = "전사입니다."
 )
 
 private val mockPersonality = Personality(

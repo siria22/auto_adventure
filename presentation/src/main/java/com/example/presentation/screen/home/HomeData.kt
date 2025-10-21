@@ -1,11 +1,15 @@
 package com.example.presentation.screen.home
 
+import com.example.domain.model.feature.guild.GuildInfoData
+
 data class HomeData(
-    val data: String
+    val guildInfoData: GuildInfoData,
+    val guildMoney: Long
 ) {
     companion object {
         fun empty() = HomeData(
-            data = ""
+            guildInfoData = GuildInfoData.mock(),
+            guildMoney = 0
         )
     }
 }

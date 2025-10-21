@@ -25,4 +25,8 @@ class ActorRepositoryImpl @Inject constructor(
     override suspend fun getActorByName(name: String): BaseActor? {
         return actorDao.getActorByName(name)?.toDomain()
     }
+
+    override suspend fun getRecruitedActorCount(): Int {
+        return actorDao.getRecruitedActorCount()
+    }
 }

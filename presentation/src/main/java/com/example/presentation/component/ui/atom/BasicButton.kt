@@ -2,7 +2,9 @@ package com.example.presentation.component.ui.atom
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
@@ -60,10 +62,25 @@ enum class ButtonType {
 @Composable
 private fun AppButtonPreview() {
     AutoAdventureTheme {
-        BasicButton(
-            text = "Button",
-            onClicked = {},
-            type = ButtonType.PRIMARY
-        )
+        Column(
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            BasicButton(
+                text = "Button",
+                onClicked = {},
+                type = ButtonType.PRIMARY
+            )
+            BasicButton(
+                text = "Button",
+                onClicked = {},
+                type = ButtonType.SECONDARY
+            )
+            BasicButton(
+                text = "Button",
+                onClicked = {},
+                type = ButtonType.DEFAULT
+            )
+        }
     }
 }
