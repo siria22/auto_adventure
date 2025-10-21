@@ -4,8 +4,6 @@ import com.example.domain.model.feature.actor.base.BaseActor
 import com.example.domain.model.feature.actor.base.Job
 import com.example.domain.model.feature.actor.base.Personality
 import com.example.domain.model.feature.inventory.CustomizedEquip
-import com.example.domain.model.feature.inventory.InventoryItem
-import com.example.domain.model.feature.inventory.Item
 import com.example.domain.model.feature.types.ActorCategory
 import com.example.domain.model.feature.types.EquipCategory
 
@@ -22,6 +20,8 @@ data class Actor private constructor(
     val equips: ActorEquips,
     val skills: List<ActorSkills>,
     val actions: List<ActorAction>,
+    val adventureCount: Long,
+    val killCount: Long,
     val currentTarget: Actor? = null
 ) {
     /**
@@ -66,28 +66,6 @@ data class Actor private constructor(
         return calculateAttributes(info, stats, equips)
     }
 
-    private fun getAvailableActions(
-        inventoryItems: List<InventoryItem>,
-        allItems: List<Item>
-    ): List<ActorAction> {
-        val itemActions = inventoryItems.mapNotNull { inventoryItem ->
-            allItems.find { it.id == inventoryItem.itemId }?.let { UseItemAction(it) }
-        }
-        return listOf(AttackAction()) + itemActions
-    }
-
-    fun decideAndAct(
-        inventoryItems: List<InventoryItem>,
-        allItems: List<Item>
-    ): Actor {
-        val target = this.currentTarget ?: return this
-
-        val availableActions = getAvailableActions(inventoryItems, allItems)
-        val chosenAction = availableActions.random()
-
-        return chosenAction.execute(this, target)
-    }
-
     fun attack(target: Actor): Actor {
         val hitChance = (this.attribute.accuracy - target.attribute.evasion).coerceIn(0, 100)
         if ((1..100).random() > hitChance) {
@@ -111,8 +89,8 @@ data class Actor private constructor(
         return this.copy(currentHp = newHp)
     }
 
-    fun useItem(item: Item): Actor {
-        println("${this.info.name}이(가) ${item.name} 아이템을 사용했습니다!")
+    fun useItem(/*item: Item*/): Actor {
+        println("아이템을 사용했습니다!")
 
         return this
     }
@@ -159,6 +137,8 @@ data class Actor private constructor(
                 equips = actorEquips,
                 skills = actorSkills,
                 actions = actorActions,
+                adventureCount = baseActor.adventureCount,
+                killCount = baseActor.killCount,
                 currentTarget = null
             )
         }

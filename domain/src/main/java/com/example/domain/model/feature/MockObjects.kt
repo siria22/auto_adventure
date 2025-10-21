@@ -8,7 +8,7 @@ import com.example.domain.model.feature.actor.base.Job
 import com.example.domain.model.feature.actor.base.Personality
 import com.example.domain.model.feature.types.StatType
 
-private val mockBaseActor = BaseActor(
+internal val mockBaseActor = BaseActor(
     id = 0L,
     name = "Sairo",
     totalExp = 22,
@@ -34,14 +34,14 @@ private val mockBaseActor = BaseActor(
     recruitedAt = null
 )
 
-private val mockJob = Job(
+internal val mockJob = Job(
     jobId = 1L,
     nameKor = "전사",
     nameEng = "Warrior",
     description = "전사입니다."
 )
 
-private val mockPersonality = Personality(
+internal val mockPersonality = Personality(
     id = 1L,
     name = "용감함",
     increaseTarget = StatType.STRENGTH,
@@ -50,7 +50,7 @@ private val mockPersonality = Personality(
     decreaseAmount = 1
 )
 
-private val mockActorEquips = ActorEquips(
+internal val mockActorEquips = ActorEquips(
     weapon = null,
     sidearm = null,
     armor = null,
