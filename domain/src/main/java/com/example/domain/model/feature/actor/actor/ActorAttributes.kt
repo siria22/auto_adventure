@@ -9,5 +9,6 @@ data class ActorAttributes(
     val maxMp: Long,     // 최대 MP
     val fortune: Long,   // 행운
     val accuracy: Long,  // 명중
-    val def: Long        // 방어
+    val def: Long,        // 방어
+    val criticalDamage: Double // 치명타 배율
 )

@@ -10,6 +10,8 @@ import com.example.domain.model.feature.types.EquipCategory
 @ConsistentCopyVisibility
 data class Actor private constructor(
     val id: Long,
+    val currentHp: Long,
+    val currentMp: Long,
     val remainSkillPoint: Long,
     val remainStatPoint: Long,
     val info: ActorInfo,
@@ -17,7 +19,10 @@ data class Actor private constructor(
     val attribute: ActorAttributes,
     val equips: ActorEquips,
     val skills: List<ActorSkills>,
-    val actions: List<ActorAction>
+    val actions: List<ActorAction>,
+    val adventureCount: Long,
+    val killCount: Long,
+    val currentTarget: Actor? = null
 ) {
     /**
      * Equips a new piece of armor to the actor.
@@ -61,6 +66,35 @@ data class Actor private constructor(
         return calculateAttributes(info, stats, equips)
     }
 
+    fun attack(target: Actor): Actor {
+        val hitChance = (this.attribute.accuracy - target.attribute.evasion).coerceIn(0, 100)
+        if ((1..100).random() > hitChance) {
+            return target
+        }
+
+        var attackDamage = this.attribute.attack
+
+        val criticalChance = (this.attribute.fortune * 0.5).toInt().coerceIn(0, 100)
+        val isCritical = (1..100).random() <= criticalChance
+        if (isCritical) {
+            attackDamage = (attackDamage * this.attribute.criticalDamage).toLong()
+        }
+
+        return target.takeDamage(attackDamage)
+    }
+
+    fun takeDamage(incomingAttackDamage: Long): Actor {
+        val finalDamage = (incomingAttackDamage - this.attribute.def).coerceAtLeast(1)
+        val newHp = (this.currentHp - finalDamage).coerceAtLeast(0)
+        return this.copy(currentHp = newHp)
+    }
+
+    fun useItem(/*item: Item*/): Actor {
+        println("아이템을 사용했습니다!")
+
+        return this
+    }
+
     companion object {
         fun create(
             baseActor: BaseActor,
@@ -93,6 +127,8 @@ data class Actor private constructor(
 
             return Actor(
                 id = baseActor.id,
+                currentHp = baseActor.currentHp,
+                currentMp = baseActor.currentMp,
                 remainSkillPoint = baseActor.remainSkillPoint,
                 remainStatPoint = baseActor.remainStatPoint,
                 info = info,
@@ -100,7 +136,10 @@ data class Actor private constructor(
                 attribute = attribute,
                 equips = actorEquips,
                 skills = actorSkills,
-                actions = actorActions
+                actions = actorActions,
+                adventureCount = baseActor.adventureCount,
+                killCount = baseActor.killCount,
+                currentTarget = null
             )
         }
 
@@ -131,8 +170,9 @@ data class Actor private constructor(
                 magic = (1 + modifiedStats.intelligence * 2),
                 maxMp = (5 + modifiedStats.intelligence * 3),
                 fortune = (0 + modifiedStats.luck * 1),
-                accuracy = (0 + modifiedStats.luck * 1),
-                def = (0 + equips.getTotalDefenseAmount())
+                accuracy = (100 + modifiedStats.luck * 1),
+                def = (0 + equips.getTotalDefenseAmount()),
+                criticalDamage = 1.5
             )
         }
     }
