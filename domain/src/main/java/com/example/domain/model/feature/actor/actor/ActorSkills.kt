@@ -6,4 +6,12 @@ data class ActorSkills(
     val baseSkill: BaseSkill,
     val reinforcementLevel: Long,
     val isEquipped: Boolean
-)
+) {
+    companion object {
+        fun empty() = ActorSkills(
+            baseSkill = BaseSkill.empty(),
+            reinforcementLevel = 0,
+            isEquipped = true
+        )
+    }
+}

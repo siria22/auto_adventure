@@ -48,7 +48,7 @@ fun BasicImageBox(
             isLoading = false
             Box(
                 modifier = modifier
-                    .background(Color.Gray)
+                    .background(Color.Black)
                     .clip(RoundedCornerShape(4.dp))
             )
         } else {

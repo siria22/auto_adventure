@@ -14,4 +14,19 @@ data class BaseSkill(
     val multiplier: Float,
     val hitRate: Float,
     val prerequisiteSkillIds: List<Long>
-)
+) {
+    companion object {
+        fun empty() = BaseSkill (
+            id = -1L,
+            name = "",
+            description = "",
+            maxLevel = 0,
+            elementType = SkillElementType.NONE,
+            activationType = ActivationType.ACTIVE,
+            requiredMp = 0,
+            multiplier = 0.0f,
+            hitRate = 0.0f,
+            prerequisiteSkillIds = emptyList()
+        )
+    }
+}
