@@ -1,10 +1,10 @@
 package com.example.domain.repository.feature.party
 
-import com.example.domain.model.feature.party.Party
+import com.example.domain.model.feature.party.BaseParty
 
 interface PartyRepository {
-    suspend fun insertParty(party: Party): Result<Unit>
-    suspend fun getAllParties(): List<Party>
-    suspend fun getPartyById(id: Long): Party?
-    suspend fun getPartyByName(name: String): Party?
+    suspend fun insertParty(baseParty: BaseParty): Result<Unit>
+    suspend fun getAllParties(): List<BaseParty>
+    suspend fun getPartyById(id: Long): BaseParty?
+    suspend fun getPartyByName(name: String): BaseParty?
 }

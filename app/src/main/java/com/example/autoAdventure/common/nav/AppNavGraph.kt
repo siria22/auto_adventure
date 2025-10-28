@@ -6,6 +6,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import com.example.presentation.utils.nav.ScreenDestinations
 import com.example.presentation.screen.home.homeDestination
+import com.example.presentation.screen.test.testDestination
 
 @Composable
 fun AppNavGraph(modifier: Modifier = Modifier) {
@@ -18,5 +19,6 @@ fun AppNavGraph(modifier: Modifier = Modifier) {
         modifier = modifier
     ) {
         homeDestination(navController = navController)
+        testDestination(navController = navController)
     }
 }

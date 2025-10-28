@@ -1,0 +1,23 @@
+[
+  {
+    "dungeon_id": 1,
+    "floor": 1,
+    "none_rate": 2,
+    "battle_rate": 5,
+    "event_rate": 5
+  },
+  {
+    "dungeon_id": 1,
+    "floor": 2,
+    "none_rate": 2,
+    "battle_rate": 7,
+    "event_rate": 5
+  },
+  {
+    "dungeon_id": 1,
+    "floor": 3,
+    "none_rate": 2,
+    "battle_rate": 10,
+    "event_rate": 4
+  }
+]

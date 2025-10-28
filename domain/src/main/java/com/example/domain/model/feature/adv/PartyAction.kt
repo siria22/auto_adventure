@@ -1,11 +1,10 @@
-package com.example.domain.model.feature.actor.actor
+package com.example.domain.model.feature.adv
 
 import com.example.domain.model.feature.types.ActionStatusFlag
 import com.example.domain.model.feature.common.BaseAction
 
-// TODO : Action
-data class ActorAction(
-    val characterId: Long,
+data class PartyAction(
+    val partyId: Long,
     val index: Long,
     val instruction: String, /* TODO : Parsed instruction actions in class */
     val isActivated: Boolean

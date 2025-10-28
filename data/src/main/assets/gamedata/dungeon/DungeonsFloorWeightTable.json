@@ -1,0 +1,38 @@
+[
+  {
+    "dungeon_id": 1,
+    "floor": 1,
+    "monster_max_weight": 30,
+    "loot_min_weight": 5,
+    "loot_max_weight": 10
+  },
+  {
+    "dungeon_id": 1,
+    "floor": 2,
+    "monster_max_weight": 50,
+    "loot_min_weight": 5,
+    "loot_max_weight": 10
+  },
+  {
+    "dungeon_id": 1,
+    "floor": 2,
+    "monster_max_weight": 50,
+    "loot_min_weight": 5,
+    "loot_max_weight": 10
+  },
+  {
+    "dungeon_id": 1,
+    "floor": 3,
+    "monster_max_weight": 50,
+    "loot_min_weight": 10,
+    "loot_max_weight": 20
+  },
+  {
+    "dungeon_id": 1,
+    "floor": 3,
+    "room": 3,
+    "monster_max_weight": 70,
+    "loot_min_weight": 20,
+    "loot_max_weight": 40
+  }
+]

@@ -17,7 +17,7 @@ class Logger @Inject constructor(
     private var lastLog: DomainLog? = null
     private var idCounter: Long = 0L
 
-    suspend fun startLogging() {
+    suspend fun initialize() {
         runCatching { getLastLogIdUseCase() }
             .onSuccess {
                 idCounter = it.getOrThrow() ?: 0L
@@ -35,7 +35,7 @@ class Logger @Inject constructor(
         category: LogCategory,
         revealAfter: Int
     ): Logger {
-        if (!isInitialized) throw Exception("Logger must be initialized. Call startLogging() first.\n" +
+        if (!isInitialized) throw Exception("Logger must be initialized. Call initialize() first.\n" +
                 "See details in Logger.md")
         val revealTime = if (revealAfter < 0) 0 else revealAfter.toLong()
 

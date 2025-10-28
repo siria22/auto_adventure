@@ -1,8 +1,10 @@
 package com.example.domain.model.feature.party
 
-data class PartyMember(
+import com.example.domain.model.feature.types.PartyPosition
+
+data class BasePartyMember(
     val characterId: Long,
     val partyId: Long,
     val isPartyLeader: Boolean,
-    val position: String // TODO: Enum으로 변경 (FRONT, BACK)
+    val position: PartyPosition
 )

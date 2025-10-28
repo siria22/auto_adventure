@@ -1,0 +1,29 @@
+[
+  {
+    "event_id": 1,
+    "event_name": "회복 이벤트 1",
+    "log_message" : "괜찮은 터가 보여서 잠시 휴식하기로 결정하였다.",
+    "effect_type" : "REST",
+    "affect_param" : ["HP", "MP"],
+    "effect_amt" : [10, 5],
+    "status_effect" : ""
+  },
+  {
+    "event_id": 2,
+    "event_name": "회복 이벤트 2",
+    "log_message" : "탐사 도중 회복의 샘물을 발견하였다.",
+    "effect_type" : "REST",
+    "affect_param" : ["HP"],
+    "effect_amt" : [15],
+    "status_effect" : ""
+  },
+  {
+    "event_id": 3,
+    "event_name": "함정 이벤트 1",
+    "log_message" : "누군가 장난으로 설치한 트랩이 발동되었다",
+    "effect_type" : "TRAP",
+    "affect_param" : ["HP"],
+    "effect_amt" : [8],
+    "status_effect" : ""
+  }
+]
