@@ -11,6 +11,7 @@ import com.example.data.remote.feature.inventory.repository.BaseEquipRepositoryI
 import com.example.data.remote.feature.inventory.repository.CustomizedEquipRepositoryImpl
 import com.example.data.remote.feature.inventory.repository.InventoryRepositoryImpl
 import com.example.data.remote.feature.inventory.repository.ItemRepositoryImpl
+import com.example.data.remote.nonfeature.log.repository.LogRepositoryImpl
 import com.example.data.remote.feature.party.repository.PartyActionRepositoryImpl
 import com.example.data.remote.feature.party.repository.PartyMemberRepositoryImpl
 import com.example.data.remote.feature.party.repository.PartyRepositoryImpl
@@ -32,6 +33,7 @@ import com.example.domain.repository.feature.party.PartyMemberRepository
 import com.example.domain.repository.feature.party.PartyRepository
 import com.example.domain.repository.feature.quest.AcceptedQuestRepository
 import com.example.domain.repository.feature.quest.QuestRepository
+import com.example.domain.repository.nonfeature.log.LogRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -110,4 +112,9 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindGuildRepository(impl: GuildRepositoryImpl): GuildRepository
+
+    //Log
+    @Binds
+    @Singleton
+    abstract fun bindLogRepository(impl: LogRepositoryImpl): LogRepository
 }

@@ -7,6 +7,7 @@ import com.example.data.remote.feature.actor.dao.ActorDao
 import com.example.data.remote.feature.actor.dao.ActorSkillDao
 import com.example.data.remote.feature.inventory.dao.CustomizedEquipDao
 import com.example.data.remote.feature.inventory.dao.InventoryItemDao
+import com.example.data.remote.nonfeature.log.dao.LogDao
 import com.example.data.remote.feature.party.dao.PartyActionDao
 import com.example.data.remote.feature.party.dao.PartyDao
 import com.example.data.remote.feature.party.dao.PartyMemberDao
@@ -76,5 +77,10 @@ object DatabaseModule {
     @Provides
     fun provideAcceptedQuestDao(database: AppDatabase): AcceptedQuestDao {
         return database.acceptedQuestDao()
+    }
+
+    @Provides
+    fun provideLogDao(database: AppDatabase): LogDao {
+        return database.logDao()
     }
 }

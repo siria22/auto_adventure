@@ -15,7 +15,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -28,7 +27,10 @@ import androidx.navigation.compose.rememberNavController
 import com.example.domain.model.feature.guild.GuildInfoData
 import com.example.domain.scripts.guild.GuildRank
 import com.example.presentation.R
+import com.example.presentation.component.test.TestLogDialog
 import com.example.presentation.component.theme.AutoAdventureTheme
+import com.example.presentation.component.ui.atom.BasicButton
+import com.example.presentation.component.ui.atom.ButtonType
 import com.example.presentation.component.ui.molecule.guild.GuildMoneyCard
 import com.example.presentation.component.ui.molecule.guild.GuildRankBadge
 import com.example.presentation.component.ui.organism.dialog.guild.GuildInfoDialog
@@ -37,7 +39,6 @@ import com.example.presentation.utils.error.ErrorDialog
 import com.example.presentation.utils.error.ErrorDialogState
 import com.example.presentation.utils.nav.ScreenDestinations
 import com.example.presentation.utils.nav.safeNavigate
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 
 @Composable
@@ -53,6 +54,7 @@ fun HomeScreen(
 
     var isGuildInfoDialogVisible by remember { mutableStateOf(false) }
     var isGuildRankUpConfirmDialogVisible by remember { mutableStateOf(false) }
+    var isOpenLogDialogVisible by remember { mutableStateOf(false) }
 
     LaunchedEffect(argument.event) {
         argument.event.collect { event ->
@@ -73,7 +75,8 @@ fun HomeScreen(
             HomeScreenContents(
                 guildInfoData = guildInfoData,
                 money = guildMoney,
-                onGuildBadgeClicked = { isGuildInfoDialogVisible = true }
+                onGuildBadgeClicked = { isGuildInfoDialogVisible = true },
+                onOpenLogDialogButtonClicked = { isOpenLogDialogVisible = true}
             )
         }
     }
@@ -97,6 +100,12 @@ fun HomeScreen(
         )
     }
 
+    if (isOpenLogDialogVisible) {
+        TestLogDialog(
+            onDismissButtonClicked = { isOpenLogDialogVisible = false }
+        )
+    }
+
     if (errorDialogState.isErrorDialogVisible) {
         ErrorDialog(
             errorDialogState = errorDialogState,
@@ -112,7 +121,8 @@ fun HomeScreen(
 private fun HomeScreenContents(
     guildInfoData: GuildInfoData,
     money: Long,
-    onGuildBadgeClicked: () -> Unit
+    onGuildBadgeClicked: () -> Unit,
+    onOpenLogDialogButtonClicked: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -120,14 +130,28 @@ private fun HomeScreenContents(
             .padding(16.dp),
         verticalArrangement = Arrangement.SpaceBetween
     ) {
-        GuildStatusHeader(
-            guildRank = guildInfoData.guildRank,
-            money = money,
-            onGuildBadgeClicked = onGuildBadgeClicked
-        )
-
+        Column(
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            GuildStatusHeader(
+                guildRank = guildInfoData.guildRank,
+                money = money,
+                onGuildBadgeClicked = onGuildBadgeClicked
+            )
+            OpenLogDialogButton(onOpenLogDialogButtonClicked)
+        }
         BottomNavBar()
     }
+}
+
+@Composable
+private fun OpenLogDialogButton(onOpenLogDialogButtonClicked: () -> Unit){
+    BasicButton(
+        text = "Test Log Dialog",
+        type = ButtonType.PRIMARY,
+        onClicked = onOpenLogDialogButtonClicked,
+        modifier = Modifier.fillMaxWidth(0.4f)
+    )
 }
 
 @Composable
