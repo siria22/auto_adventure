@@ -1,4 +1,4 @@
-package com.example.domain.usecase.guild
+package com.example.domain.usecase.feature.guild
 
 import com.example.domain.model.feature.guild.GuildInfoData
 import com.example.domain.repository.feature.actor.ActorRepository

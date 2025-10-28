@@ -13,6 +13,7 @@ import com.example.data.remote.feature.inventory.dao.CustomizedEquipDao
 import com.example.data.remote.feature.inventory.dao.InventoryItemDao
 import com.example.data.remote.feature.inventory.entity.CustomizedEquipEntity
 import com.example.data.remote.feature.inventory.entity.InventoryItemEntity
+import com.example.data.remote.nonfeature.log.dao.LogDao
 import com.example.data.remote.feature.party.dao.PartyActionDao
 import com.example.data.remote.feature.party.dao.PartyDao
 import com.example.data.remote.feature.party.dao.PartyMemberDao
@@ -21,13 +22,15 @@ import com.example.data.remote.feature.party.entity.PartyEntity
 import com.example.data.remote.feature.party.entity.PartyMemberEntity
 import com.example.data.remote.feature.quest.dao.AcceptedQuestDao
 import com.example.data.remote.feature.quest.entity.AcceptedQuestEntity
+import com.example.data.remote.nonfeature.log.entity.LogEntity
 
 @Database(
     entities = [
         ActorActionEntity::class, ActorEntity::class, ActorSkillEntity::class,
         CustomizedEquipEntity::class, InventoryItemEntity::class,
         PartyActionEntity::class, PartyEntity::class, PartyMemberEntity::class,
-        AcceptedQuestEntity::class
+        AcceptedQuestEntity::class,
+        LogEntity::class
     ],
     version = 1,
     exportSchema = false
@@ -46,4 +49,6 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun customizedEquipDao(): CustomizedEquipDao
 
     abstract fun acceptedQuestDao(): AcceptedQuestDao
+
+    abstract fun logDao(): LogDao
 }

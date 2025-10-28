@@ -1,8 +1,8 @@
 package com.example.presentation.screen.home
 
 import com.example.domain.model.feature.guild.GuildInfoData
-import com.example.domain.usecase.guild.GetGuildInfoUseCase
-import com.example.domain.usecase.user.GetPlayerMoneyUseCase
+import com.example.domain.usecase.feature.guild.GetGuildInfoUseCase
+import com.example.domain.usecase.feature.user.GetPlayerMoneyUseCase
 import com.example.presentation.utils.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
