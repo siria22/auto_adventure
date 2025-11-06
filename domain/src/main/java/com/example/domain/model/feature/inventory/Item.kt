@@ -1,6 +1,7 @@
 package com.example.domain.model.feature.inventory
 
 import com.example.domain.model.feature.types.ItemCategory
+import com.example.domain.model.feature.types.ItemEffectType
 import com.example.domain.model.feature.types.ObtainMethod
 
 data class Item(
@@ -15,5 +16,7 @@ data class Item(
     val isSellable: Boolean,
     val buyPrice: Long,
     val sellPrice: Long,
-    val isUsable: Boolean
+    val isUsable: Boolean,
+    val effectType: ItemEffectType,
+    val effectAmount: Long
 )
