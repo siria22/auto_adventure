@@ -19,7 +19,10 @@ class UseItemUseCase @Inject constructor(
 
         val updatedActor = actor.useItem(item)
 
-        addOrUpdateItemUseCase(actor.id, item.id, -1)
+        val updateResult = addOrUpdateItemUseCase(actor.id, item.id, -1)
+        if (updateResult.isFailure) {
+            return Result.failure(updateResult.exceptionOrNull() ?: Exception("아이템 수량 변경에 실패했습니다."))
+        }
 
         return Result.success(updatedActor)
     }

@@ -79,7 +79,7 @@ class ActorTest {
             sellPrice = 0,
             isUsable = true
         )
-        addOrUpdateItemUseCase(actor.id, manaPotion.id, 1)
+        addOrUpdateItemUseCase(actor.id, manaPotion.id, 1).getOrThrow()
 
         val result = useItemUseCase(actor, manaPotion)
 
@@ -110,7 +110,7 @@ class ActorTest {
             sellPrice = 0,
             isUsable = true
         )
-        addOrUpdateItemUseCase(actor.id, superManaPotion.id, 1)
+        addOrUpdateItemUseCase(actor.id, superManaPotion.id, 1).getOrThrow()
 
         val result = useItemUseCase(actor, superManaPotion)
 
@@ -131,7 +131,7 @@ class ActorTest {
             weight = 0.0, maxStackSize = 99, obtainMethods = emptyList(),
             isSellable = false, buyPrice = 0, sellPrice = 0, isUsable = true
         )
-        addOrUpdateItemUseCase(deadActor.id, potion.id, 1)
+        addOrUpdateItemUseCase(deadActor.id, potion.id, 1).getOrThrow()
 
         val result = useItemUseCase(deadActor, potion)
 
@@ -153,7 +153,7 @@ class ActorTest {
             weight = 0.0, maxStackSize = 99, obtainMethods = emptyList(),
             isSellable = false, buyPrice = 0, sellPrice = 0, isUsable = true
         )
-        addOrUpdateItemUseCase(deadActor.id, resurrectionPotion.id, 1)
+        addOrUpdateItemUseCase(deadActor.id, resurrectionPotion.id, 1).getOrThrow()
 
         val result = useItemUseCase(deadActor, resurrectionPotion)
 
