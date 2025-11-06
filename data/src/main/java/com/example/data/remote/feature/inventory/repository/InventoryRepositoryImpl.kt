@@ -14,12 +14,24 @@ class InventoryRepositoryImpl @Inject constructor(
         inventoryItemDao.insert(inventoryItem.toEntity())
     }
 
+    override suspend fun updateInventory(inventoryItem: InventoryItem) {
+        inventoryItemDao.update(inventoryItem.toEntity())
+    }
+
+    override suspend fun deleteInventory(inventoryItem: InventoryItem) {
+        inventoryItemDao.delete(inventoryItem.toEntity())
+    }
+
     override suspend fun getAllInventories(): List<InventoryItem> {
         return inventoryItemDao.getAllInventories().map { it.toDomain() }
     }
 
     override suspend fun getInventoryByPartyId(partyId: Long): List<InventoryItem> {
         return inventoryItemDao.getInventoryByPartyId(partyId).map { it.toDomain() }
+    }
+
+    override suspend fun findItem(partyId: Long, itemId: Long): InventoryItem? {
+        return inventoryItemDao.findItem(partyId, itemId)?.toDomain()
     }
 
 }

@@ -11,7 +11,9 @@
     "is_sellable": true,
     "buy_price": 10,
     "sell_price": 5,
-    "is_usable": true
+    "is_usable": true,
+    "effect_type": "HEAL",
+    "effect_amount": 30
   },
   {
     "item_id": 2,

@@ -4,6 +4,8 @@ import com.example.domain.model.feature.actor.base.BaseActor
 import com.example.domain.model.feature.actor.base.Job
 import com.example.domain.model.feature.actor.base.Personality
 import com.example.domain.model.feature.inventory.CustomizedEquip
+import com.example.domain.model.feature.inventory.Item
+import com.example.domain.model.feature.item.effect.ItemEffectFactory
 import com.example.domain.model.feature.types.ActorCategory
 import com.example.domain.model.feature.types.EquipCategory
 
@@ -24,6 +26,9 @@ data class Actor private constructor(
     val killCount: Long,
     val currentTarget: Actor? = null
 ) {
+    val isAlive: Boolean
+        get() = currentHp > 0
+
     /**
      * Equips a new piece of armor to the actor.
      *
@@ -89,10 +94,22 @@ data class Actor private constructor(
         return this.copy(currentHp = newHp)
     }
 
-    fun useItem(/*item: Item*/): Actor {
-        println("아이템을 사용했습니다!")
+    fun useItem(item: Item): Actor {
+        if (!item.isUsable) return this
 
-        return this
+        val effect = ItemEffectFactory.createEffect(item) ?: return this
+
+        return effect.apply(this)
+    }
+
+    fun changeHp(amount: Long): Actor {
+        val newHp = (currentHp + amount).coerceIn(0, attribute.maxHp)
+        return copy(currentHp = newHp)
+    }
+
+    fun changeMp(amount: Long): Actor {
+        val newMp = (currentMp + amount).coerceIn(0, attribute.maxMp)
+        return copy(currentMp = newMp)
     }
 
     companion object {

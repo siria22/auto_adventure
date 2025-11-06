@@ -35,5 +35,11 @@ data class ItemEntity(
     val sellPrice: Long,
 
     @SerialName("is_usable")
-    val isUsable: Boolean
+    val isUsable: Boolean,
+
+    @SerialName("effect_type")
+    val effectType: String,
+
+    @SerialName("effect_amount")
+    val effectAmount: Long
 )
