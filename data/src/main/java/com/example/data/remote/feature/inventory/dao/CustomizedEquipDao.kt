@@ -1,6 +1,7 @@
 package com.example.data.remote.feature.inventory.dao
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
@@ -10,6 +11,9 @@ import com.example.data.remote.feature.inventory.entity.CustomizedEquipEntity
 interface CustomizedEquipDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(equip: CustomizedEquipEntity)
+
+    @Delete
+    suspend fun delete(equip: CustomizedEquipEntity)
 
     @Query("SELECT * FROM customized_equip")
     suspend fun getAllEquips(): List<CustomizedEquipEntity>

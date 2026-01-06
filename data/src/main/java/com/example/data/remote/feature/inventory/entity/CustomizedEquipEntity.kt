@@ -9,14 +9,14 @@ import com.example.data.remote.feature.actor.entity.ActorEntity
 
 @Entity(
     tableName = "customized_equip",
-    foreignKeys = [
+    /*foreignKeys = [
         ForeignKey(
             entity = ActorEntity::class,
             parentColumns = ["actor_id"],
             childColumns = ["owner_id"],
             onDelete = ForeignKey.Companion.CASCADE
         )
-    ],
+    ],*/
     indices = [Index(value = ["owner_id"])]
 )
 data class CustomizedEquipEntity(

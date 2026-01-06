@@ -2,11 +2,12 @@ package com.example.data.remote.feature.inventory.model
 
 import android.content.Context
 import com.example.data.remote.feature.ITEM_ASSET_ROUTE
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.serialization.json.Json
 import javax.inject.Inject
 
 class ItemProvider @Inject constructor(
-    private val context: Context
+    @ApplicationContext private val context: Context
 ) {
     private val items: List<ItemEntity> by lazy {
         parseItems()

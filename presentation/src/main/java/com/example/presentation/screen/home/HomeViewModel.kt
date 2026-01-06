@@ -1,5 +1,6 @@
 package com.example.presentation.screen.home
 
+import androidx.lifecycle.viewModelScope
 import com.example.domain.model.feature.guild.GuildInfoData
 import com.example.domain.usecase.feature.guild.GetGuildInfoUseCase
 import com.example.domain.usecase.feature.user.GetPlayerMoneyUseCase
@@ -9,6 +10,8 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -20,7 +23,7 @@ class HomeViewModel @Inject constructor(
     private val _state = MutableStateFlow<HomeState>(HomeState.Init)
     val state: StateFlow<HomeState> = _state
 
-    private val _eventFlow = MutableSharedFlow<HomeEvent>()
+    private val _eventFlow = MutableSharedFlow<HomeEvent>(replay = +1)
     val eventFlow: SharedFlow<HomeEvent> = _eventFlow
 
     private val _guildInfoData = MutableStateFlow(GuildInfoData.empty())
@@ -38,11 +41,23 @@ class HomeViewModel @Inject constructor(
             is HomeIntent.SomeIntentWithParams -> {
                 //do sth(intent.params)
             }
+
+            is HomeIntent.Refresh -> {
+                viewModelScope.launch {
+                    initAndRefresh()
+                }
+            }
         }
     }
 
     init {
-        launch {
+        viewModelScope.launch {
+            getPlayerMoneyUseCase().collectLatest { money ->
+                _guildMoney.value = money
+            }
+        }
+
+        viewModelScope.launch {
             initAndRefresh()
         }
     }
@@ -51,7 +66,6 @@ class HomeViewModel @Inject constructor(
         _state.value = HomeState.OnProgress
         runCatching {
             getGuildInfo()
-            getPlayerMoney()
         }.onFailure { ex ->
             emitErrorMessage("데이터를 불러오는데 실패했습니다.", ex)
         }
@@ -65,18 +79,6 @@ class HomeViewModel @Inject constructor(
             _guildInfoData.value = result.getOrThrow()
         }.onFailure { ex ->
             emitErrorMessage("길드 정보를 불러오는데 실패했습니다.", ex)
-        }
-        _state.value = HomeState.Init
-    }
-
-    private suspend fun getPlayerMoney() {
-        _state.value = HomeState.OnProgress
-        runCatching {
-            getPlayerMoneyUseCase()
-        }.onSuccess { result ->
-            _guildMoney.value = result.getOrThrow()
-        }.onFailure { ex ->
-            emitErrorMessage("소지 재화를 불러오는데 실패했습니다.", ex)
         }
         _state.value = HomeState.Init
     }

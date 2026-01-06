@@ -2,11 +2,12 @@ package com.example.data.remote.feature.actor.model.job
 
 import android.content.Context
 import com.example.data.remote.feature.ACTOR_ASSET_ROUTE
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.serialization.json.Json
 import javax.inject.Inject
 
 class JobProvider @Inject constructor(
-    private val context: Context
+    @ApplicationContext private val context: Context
 ) {
     private val jobs: List<JobEntity> by lazy {
         parseJobs()

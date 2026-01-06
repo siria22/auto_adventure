@@ -1,7 +1,7 @@
 package com.example.domain.model.feature.inventory
 
+import com.example.domain.model.feature.types.ActorAttributeType
 import com.example.domain.model.feature.types.EquipCategory
-import com.example.domain.model.feature.types.StatType
 
 data class BaseEquip(
     val id: Long,
@@ -12,7 +12,7 @@ data class BaseEquip(
     val baseRequiredAgility: Long,
     val baseRequiredIntelligence: Long,
     val baseRequiredLuck: Long,
-    val increaseStat: StatType,
+    val increaseStat: ActorAttributeType,
     val increaseAmount: Long,
     val maxReinforcement: Int,
     val buyPrice: Long,

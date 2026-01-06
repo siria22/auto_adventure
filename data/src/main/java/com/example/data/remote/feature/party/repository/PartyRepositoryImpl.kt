@@ -6,6 +6,7 @@ import com.example.data.remote.feature.party.toEntity
 import com.example.domain.exception.PartyFullException
 import com.example.domain.model.feature.party.Party
 import com.example.domain.repository.feature.party.PartyRepository
+import com.example.domain.model.feature.party.PartyWithMembers
 import javax.inject.Inject
 
 class PartyRepositoryImpl @Inject constructor(
@@ -30,5 +31,9 @@ class PartyRepositoryImpl @Inject constructor(
 
     override suspend fun getPartyByName(name: String): Party? {
         return partyDao.getPartyByName(name)?.toDomain()
+    }
+
+    override suspend fun getPartyWithMembers(partyId: Long): PartyWithMembers? {
+        return null
     }
 }

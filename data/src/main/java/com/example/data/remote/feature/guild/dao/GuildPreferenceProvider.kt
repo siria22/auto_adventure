@@ -46,7 +46,7 @@ class GuildPreferenceProvider(
 
     suspend fun updateGuildExp(amount: Long) {
         context.dataStore.edit { preferences ->
-            val current = preferences[guildExp] ?: throw IllegalArgumentException("Failed to fetch guild exp")
+            val current = preferences[guildExp] ?: 0L
             preferences[guildExp] = current + amount
         }
     }
@@ -65,7 +65,7 @@ class GuildPreferenceProvider(
 
     suspend fun updateGold(value: Long) {
         context.dataStore.edit { prefs ->
-            val current = prefs[gold] ?: throw IllegalArgumentException("Failed to fetch gold")
+            val current = prefs[gold] ?: 0L
             prefs[gold] = current + value
         }
     }

@@ -3,6 +3,7 @@ package com.example.data.remote.feature.guild.repository
 import com.example.data.remote.feature.guild.dao.GuildPreferenceProvider
 import com.example.domain.repository.feature.guild.GuildRepository
 import com.example.domain.scripts.guild.GuildRank
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 
@@ -48,5 +49,9 @@ class GuildRepositoryImpl @Inject constructor(
 
     override suspend fun getGold(): Long {
         return guildPreferenceProvider.observeGold().first()
+    }
+
+    override fun observeGold(): Flow<Long> {
+        return guildPreferenceProvider.observeGold()
     }
 }
