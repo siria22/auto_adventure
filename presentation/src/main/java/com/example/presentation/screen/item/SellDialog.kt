@@ -42,10 +42,11 @@ import com.example.presentation.component.theme.AutoAdventureTheme
 fun SellDialog(
     imageUrl: Int,
     name: String,
-    price: Long, // 개당 판매 가격
-    maxQuantity: Int = 1, // 최대 판매 가능 수량 (장비는 기본 1)
+    price: Long,
+    maxQuantity: Int = 1,
     onDismiss: () -> Unit,
-    onSell: (Int) -> Unit
+    onSell: (Int) -> Unit,
+    disableSellReason: String? = null
 ) {
     var quantity by remember { mutableStateOf(1) }
     val totalPrice = price * quantity
@@ -97,7 +98,7 @@ fun SellDialog(
                     Box(
                         modifier = Modifier
                             .size(width = 40.dp, height = 32.dp)
-                            .clickable(enabled = quantity > 1) {
+                            .clickable(enabled = quantity > 1 && disableSellReason == null) {
                                 if (quantity > 1) quantity--
                             },
                         contentAlignment = Alignment.Center
@@ -106,7 +107,7 @@ fun SellDialog(
                             text = "-",
                             fontSize = 20.sp,
                             fontWeight = FontWeight.Bold,
-                            color = if (quantity > 1) Color.Black else Color.Gray
+                            color = if (quantity > 1 && disableSellReason == null) Color.Black else Color.Gray
                         )
                     }
 
@@ -127,7 +128,7 @@ fun SellDialog(
                     Box(
                         modifier = Modifier
                             .size(width = 40.dp, height = 32.dp)
-                            .clickable(enabled = quantity < maxQuantity) {
+                            .clickable(enabled = quantity < maxQuantity && disableSellReason == null) {
                                 if (quantity < maxQuantity) quantity++
                             },
                         contentAlignment = Alignment.Center
@@ -136,7 +137,7 @@ fun SellDialog(
                             text = "+",
                             fontSize = 20.sp,
                             fontWeight = FontWeight.Bold,
-                            color = if (quantity < maxQuantity) Color.Black else Color.Gray
+                            color = if (quantity < maxQuantity && disableSellReason == null) Color.Black else Color.Gray
                         )
                     }
                 }
@@ -149,6 +150,17 @@ fun SellDialog(
                     fontWeight = FontWeight.Medium,
                     color = Color.Black
                 )
+
+                if (disableSellReason != null) {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = disableSellReason,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Red,
+                        textAlign = TextAlign.Center
+                    )
+                }
 
                 Spacer(modifier = Modifier.height(24.dp))
 
@@ -167,7 +179,10 @@ fun SellDialog(
                     Button(
                         onClick = { onSell(quantity) },
                         modifier = Modifier.weight(1f),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF8B8B8B))
+                        enabled = disableSellReason == null,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = if (disableSellReason == null) Color(0xFF8B8B8B) else Color(0xFFC3C3C3)
+                        )
                     ) {
                         Text("판매하기")
                     }

@@ -7,6 +7,7 @@ data class EquipDetail(
     val name: String,
     val reinforcement: Long,
     val ownerName: String, // 일단 placeholder로 처리
+    val ownerId: Long, // [추가] 장착 대상 ID (0이면 미착용)
     val description: String,
     val statDescription: String, // 예: 공격력 +3 (+3)
     val obtainMethod: String = "상점 구매", // 데이터 없음, 하드코딩

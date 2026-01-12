@@ -33,7 +33,8 @@ import com.example.presentation.component.ui.molecule.item.EquipCard
 fun EquipDetailDialog(
     equipDetail: EquipDetail,
     onDismiss: () -> Unit,
-    onSellClick: () -> Unit
+    onSellClick: () -> Unit,
+    onReinforceClick: () -> Unit
 ) {
     Dialog(onDismissRequest = onDismiss) {
         Card(
@@ -84,7 +85,7 @@ fun EquipDetailDialog(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Button(
-                        onClick = { /* TODO: 강화 로직 */ },
+                        onClick = onReinforceClick,
                         modifier = Modifier.fillMaxWidth(),
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF8B8B8B))
                     ) {
@@ -125,12 +126,14 @@ private fun EquipDetailDialogPreview() {
             name = "숏소드",
             reinforcement = 3,
             ownerName = "샤이이이이-☆",
+            ownerId = 1,
             description = "한 손으로 손쉽게 사용할 수 있는 단검입니다. 끈/로프 절단, 식량 채집 등 다양하게 사용 가능합니다.",
             statDescription = "공격력 + 3 (+3)",
             category = EquipCategory.WEAPON,
             sellPrice = 100
         ),
         onDismiss = {},
-        onSellClick = {}
+        onSellClick = {},
+        onReinforceClick = {}
     )
 }

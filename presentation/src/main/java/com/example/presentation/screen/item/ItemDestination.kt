@@ -21,6 +21,8 @@ fun NavGraphBuilder.itemDestination(navController: NavController) {
             val selectedItemDetail by itemViewModel.selectedItemDetail.collectAsStateWithLifecycle()
             val selectedEquipDetail by equipViewModel.selectedEquipDetail.collectAsStateWithLifecycle()
 
+            val reinforceUiState by equipViewModel.reinforceState.collectAsStateWithLifecycle()
+
             val mergedEvent = merge(itemViewModel.eventFlow, equipViewModel.eventFlow)
 
             ItemArgument(
@@ -28,7 +30,8 @@ fun NavGraphBuilder.itemDestination(navController: NavController) {
                 intent = itemViewModel::onIntent,
                 event = mergedEvent,
                 selectedItemDetail = selectedItemDetail,
-                selectedEquipDetail = selectedEquipDetail
+                selectedEquipDetail = selectedEquipDetail,
+                reinforceUiState = reinforceUiState
             )
         }
         val itemData: ItemData = let {

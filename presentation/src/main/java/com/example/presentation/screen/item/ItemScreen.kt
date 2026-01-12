@@ -119,7 +119,23 @@ fun ItemScreen(
                 sellTarget = SellTarget.Equip(itemArgument.selectedEquipDetail!!)
                 showSellDialog = true
                 showEquipDialog = false
+            },
+            onReinforceClick = {
+                onEquipIntent(ItemIntent.OnRequestReinforce(itemArgument.selectedEquipDetail!!.id))
+                showEquipDialog = false
             }
+        )
+    }
+
+    if (itemArgument.reinforceUiState != null) {
+        val state = itemArgument.reinforceUiState!!
+        ReinforceDialog(
+            equipName = state.targetEquip.name,
+            currentReinforcement = state.targetEquip.reinforcement,
+            imageUrl = state.imageUrl,
+            materials = state.materials,
+            onDismiss = { onEquipIntent(ItemIntent.OnDismissReinforce) },
+            onReinforce = { onEquipIntent(ItemIntent.OnExecuteReinforce(state.targetEquip.id)) }
         )
     }
 
@@ -147,7 +163,7 @@ fun ItemScreen(
 
             is SellTarget.Equip -> {
                 SellDialog(
-                    imageUrl = R.drawable.ic_ironsword, // TODO: 실제 장비 이미지 매핑 필요
+                    imageUrl = R.drawable.ic_ironsword,
                     name = target.equipDetail.name,
                     price = target.equipDetail.sellPrice,
                     maxQuantity = 1,
@@ -155,7 +171,8 @@ fun ItemScreen(
                     onSell = { _ ->
                         onEquipIntent(ItemIntent.OnSellEquip(target.equipDetail.id))
                         showSellDialog = false
-                    }
+                    },
+                    disableSellReason = if (target.equipDetail.ownerId != 0L) "착용 중인 장비는 판매할 수 없습니다!" else null
                 )
             }
         }

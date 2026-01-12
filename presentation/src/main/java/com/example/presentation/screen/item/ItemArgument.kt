@@ -8,7 +8,8 @@ data class ItemArgument(
     val state: ItemState,
     val event: Flow<ItemEvent>,
     val selectedItemDetail: com.example.domain.model.feature.inventory.Item?,
-    val selectedEquipDetail: EquipDetail? = null
+    val selectedEquipDetail: EquipDetail? = null,
+    val reinforceUiState: ReinforceUiState? = null
 )
 
 sealed class ItemState {
@@ -53,6 +54,10 @@ sealed interface ItemIntent {
     data class OnEquipSortChange(val sortType: EquipSortType) : ItemIntent
     data class OnEquipClick(val equipId: Long) : ItemIntent
 
+    data class OnRequestReinforce(val equipId: Long) : ItemIntent
+    data class OnExecuteReinforce(val equipId: Long) : ItemIntent
+    data object OnDismissReinforce : ItemIntent
+
     data class OnSellItem(val itemId: Long, val quantity: Int) : ItemIntent
     data class OnSellEquip(val equipId: Long) : ItemIntent
 }
@@ -64,4 +69,6 @@ sealed class ItemEvent {
             override val exceptionMessage: String?
         ) : DataFetch(), ErrorEvent
     }
+    // [추가] 강화 성공/실패 메시지용 이벤트 등도 필요하다면 여기에 추가
+    data class ReinforceResult(val isSuccess: Boolean, val message: String) : ItemEvent()
 }
