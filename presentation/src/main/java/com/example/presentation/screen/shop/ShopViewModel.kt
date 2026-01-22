@@ -178,7 +178,7 @@ class ShopViewModel @Inject constructor(
             }
 
             val newEquip = CustomizedEquip(
-                id = 0, // Auto-increment
+                id = 0L, // Auto-increment
                 ownerId = 1L, // TODO: 실제 오너 ID
                 equipId = baseEquip.id,
                 category = baseEquip.category,
@@ -189,7 +189,7 @@ class ShopViewModel @Inject constructor(
                 requiredLuck = baseEquip.baseRequiredLuck,
                 increaseStat = baseEquip.increaseStat,
                 increaseAmount = baseEquip.increaseAmount,
-                reinforcement = 0,
+                reinforcement = 0L,
                 modifiedSellPrice = baseEquip.buyPrice / 4,
                 modifiedWeight = baseEquip.weight.toLong(),
                 rank = "Normal"
