@@ -58,7 +58,6 @@ class InventoryRepositoryImpl @Inject constructor(
 
         return inventories.map { it.toDomain() }
     }
-
     override suspend fun findItem(partyId: Long, itemId: Long): InventoryItem? {
         return inventoryItemDao.findItem(partyId, itemId)?.toDomain()
     }
