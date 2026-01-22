@@ -21,6 +21,7 @@ import com.example.presentation.component.theme.AutoAdventureTheme
 @Composable
 fun BottomNavBar(
     onNavigateToItem: () -> Unit,
+    onNavigateToShop: () -> Unit,
 ) {
     /* TODO : Background for Bottom Nav Items */
     Row(
@@ -36,7 +37,7 @@ fun BottomNavBar(
         IconBox(
             iconRes = painterResource(id = R.drawable.home),
             name = "Shop",
-            onClicked = { /* TODO : Navigate to Shop */ }
+            onClicked = onNavigateToShop
         )
         IconBox(
             iconRes = painterResource(id = R.drawable.home),
@@ -80,6 +81,6 @@ private fun IconBox(
 @Composable
 private fun BottomNavBarPreview() {
     AutoAdventureTheme {
-        BottomNavBar({})
+        BottomNavBar({}, {})
     }
 }

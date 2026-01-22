@@ -94,7 +94,8 @@ fun HomeScreen(
                 money = guildMoney,
                 onGuildBadgeClicked = { isGuildInfoDialogVisible = true },
                 onOpenLogDialogButtonClicked = { isOpenLogDialogVisible = true },
-                onNavigateToItem = { navController.navigate(ScreenDestinations.Item.route) }
+                onNavigateToItem = { navController.navigate(ScreenDestinations.Item.route) },
+                onNavigateToShop = { navController.navigate(ScreenDestinations.Shop.route) }
             )
         }
     }
@@ -141,7 +142,8 @@ private fun HomeScreenContents(
     money: Long,
     onGuildBadgeClicked: () -> Unit,
     onOpenLogDialogButtonClicked: () -> Unit,
-    onNavigateToItem: () -> Unit
+    onNavigateToItem: () -> Unit,
+    onNavigateToShop: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -159,7 +161,9 @@ private fun HomeScreenContents(
             )
             OpenLogDialogButton(onOpenLogDialogButtonClicked)
         }
-        BottomNavBar(onNavigateToItem = onNavigateToItem)
+        BottomNavBar(
+            onNavigateToItem = onNavigateToItem,
+            onNavigateToShop = onNavigateToShop)
     }
 }
 

@@ -10,4 +10,5 @@ sealed class ScreenDestinations(val route: String) {
         data object Test : ScreenDestinations("item/test")
     }
 
+    data object Shop : ScreenDestinations("shop")
 }
