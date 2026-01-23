@@ -1,6 +1,7 @@
 package com.example.presentation.screen.item
 
 import com.example.domain.model.feature.inventory.InventoryItem
+import com.example.domain.model.feature.types.ItemFilterType
 
 data class ItemData(
     val displayedItems: List<InventoryItem>,

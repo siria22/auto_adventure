@@ -7,7 +7,7 @@ import kotlinx.serialization.json.Json
 import javax.inject.Inject
 
 class PersonalityProvider @Inject constructor(
-    @ApplicationContext private val context: Context
+    @param:ApplicationContext private val context: Context
 ) {
     private val personality: List<PersonalityEntity> by lazy {
         parsePersonalities()

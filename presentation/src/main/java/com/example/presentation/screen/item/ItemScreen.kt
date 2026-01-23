@@ -24,7 +24,6 @@ import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -45,19 +44,18 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.domain.model.feature.inventory.InventoryItem
+import com.example.domain.model.feature.types.EquipFilterType
+import com.example.domain.model.feature.types.ItemFilterType
 import com.example.presentation.R
 import com.example.presentation.component.theme.AutoAdventureTheme
 import com.example.presentation.component.ui.molecule.item.EquipCard
 import com.example.presentation.component.ui.molecule.item.ItemCard
 import kotlinx.coroutines.flow.MutableSharedFlow
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ItemScreen(
     navController: NavController,
@@ -66,8 +64,7 @@ fun ItemScreen(
     equipData: EquipData,
     onEquipIntent: (ItemIntent) -> Unit
 ) {
-    var selectedTabIndex by remember { mutableStateOf(0) }
-    val tabs = listOf("Item", "Equip")
+    var selectedTab by remember { mutableStateOf(ItemTab.ITEM) }
 
     var showDialog by remember { mutableStateOf(false) }
     var showEquipDialog by remember { mutableStateOf(false) }
@@ -202,9 +199,8 @@ fun ItemScreen(
                     }
                     Text(
                         text = "인벤토리",
+                        style = MaterialTheme.typography.titleLarge,
                         color = Color.Black,
-                        fontSize = 30.sp,
-                        fontWeight = FontWeight.Bold
                     )
                     IconButton(onClick = { /* TODO */ }) {
                         Icon(
@@ -229,26 +225,33 @@ fun ItemScreen(
             )
 
             SecondaryTabRow(
-                selectedTabIndex = selectedTabIndex,
+                selectedTabIndex = selectedTab.ordinal,
                 containerColor = Color(0xFF878787),
                 indicator = { }
             ) {
-                tabs.forEachIndexed { index, title ->
+                ItemTab.values().forEach { tab ->
                     Tab(
-                        selected = selectedTabIndex == index,
-                        onClick = { selectedTabIndex = index },
-                        text = { Text(text = title, fontSize = 25.sp) },
+                        selected = selectedTab == tab,
+                        onClick = { selectedTab = tab },
+                        text = {
+                            Text(
+                                text = tab.displayName,
+                                style = MaterialTheme.typography.titleMedium
+                            )
+                        },
                         selectedContentColor = Color.Black,
                         unselectedContentColor = Color.Black,
-                        modifier = Modifier.background(
-                            if (selectedTabIndex == index) Color(0xFFC3C3C3) else Color.Transparent
-                        )
+                        modifier = Modifier
+                            .height(50.dp)
+                            .background(
+                                if (selectedTab == tab) Color(0xFFC3C3C3) else Color.Transparent
+                            )
                     )
                 }
             }
 
-            when (selectedTabIndex) {
-                0 -> { // 아이템 탭 컨텐츠
+            when (selectedTab) {
+                ItemTab.ITEM -> {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -335,7 +338,7 @@ fun ItemScreen(
                     }
                 }
 
-                1 -> {
+                ItemTab.EQUIP -> {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -435,6 +438,11 @@ private sealed interface SellTarget {
     data class Equip(
         val equipDetail: EquipDetail
     ) : SellTarget
+}
+
+private enum class ItemTab(val displayName: String) {
+    ITEM("Item"),
+    EQUIP("Equip")
 }
 
 @Preview(showBackground = true)

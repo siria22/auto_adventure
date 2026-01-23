@@ -1,6 +1,7 @@
 package com.example.presentation.screen.item
 
 import com.example.domain.model.feature.types.EquipCategory
+import com.example.domain.model.feature.types.EquipFilterType
 
 data class EquipDetail(
     val id: Long,
@@ -15,9 +16,8 @@ data class EquipDetail(
     val sellPrice: Long
 )
 
-// UI 표시에 필요한 정보만 모아놓은 새로운 데이터 클래스
 data class DisplayedEquip(
-    val customizedId: Long, // CustomizedEquip의 고유 ID
+    val customizedId: Long,
     val name: String,
     val category: EquipCategory,
     val reinforcement: Long,

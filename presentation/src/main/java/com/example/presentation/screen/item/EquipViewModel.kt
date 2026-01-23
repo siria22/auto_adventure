@@ -3,7 +3,7 @@ package com.example.presentation.screen.item
 import androidx.lifecycle.viewModelScope
 import com.example.domain.model.feature.inventory.BaseEquip
 import com.example.domain.model.feature.inventory.CustomizedEquip
-import com.example.domain.model.feature.types.EquipCategory
+import com.example.domain.model.feature.types.EquipFilterType
 import com.example.domain.repository.feature.guild.GuildRepository
 import com.example.domain.repository.feature.inventory.BaseEquipRepository
 import com.example.domain.repository.feature.inventory.CustomizedEquipRepository
@@ -91,7 +91,7 @@ class EquipViewModel @Inject constructor(
                 }
             }
 
-            is ItemIntent.OnDismissReinforce -> { // [추가]
+            is ItemIntent.OnDismissReinforce -> {
                 dismissReinforceDialog()
             }
 
@@ -270,11 +270,8 @@ class EquipViewModel @Inject constructor(
             }
         }
 
-        val filteredList = when (filter) {
-            EquipFilterType.ALL -> combinedList
-            EquipFilterType.WEAPON -> combinedList.filter { it.category == EquipCategory.WEAPON || it.category == EquipCategory.SIDEARM }
-            EquipFilterType.ARMOR -> combinedList.filter { it.category == EquipCategory.ARMOR || it.category == EquipCategory.GLOVES || it.category == EquipCategory.SHOES }
-            EquipFilterType.ACCESSORY -> combinedList.filter { it.category == EquipCategory.ACCESSORY }
+        val filteredList = combinedList.filter {
+            filter.matches(it.category)
         }
 
         return when (sort) {

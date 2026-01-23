@@ -5,7 +5,18 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -13,8 +24,22 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SecondaryTabRow
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Tab
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -26,35 +51,27 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import com.example.domain.model.feature.inventory.BaseEquip
 import com.example.domain.model.feature.inventory.Item
-import com.example.domain.model.feature.types.*
+import com.example.domain.model.feature.types.EquipCategory
+import com.example.domain.model.feature.types.EquipFilterType
+import com.example.domain.model.feature.types.ItemCategory
+import com.example.domain.model.feature.types.ItemEffectType
+import com.example.domain.model.feature.types.ItemFilterType
 import com.example.presentation.R
+import com.example.presentation.component.theme.AutoAdventureTheme
+import kotlinx.coroutines.flow.MutableSharedFlow
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ShopScreen(
     navController: NavController,
-    viewModel: ShopViewModel = hiltViewModel()
+    argument: ShopArgument,
+    data: ShopData
 ) {
-    val items by viewModel.items.collectAsStateWithLifecycle()
-    val baseEquips by viewModel.baseEquips.collectAsStateWithLifecycle()
-    val userGold by viewModel.userGold.collectAsStateWithLifecycle()
-    val selectedItemToBuy by viewModel.selectedItemToBuy.collectAsStateWithLifecycle()
-    val selectedEquipToBuy by viewModel.selectedEquipToBuy.collectAsStateWithLifecycle()
-
-    val itemFilter by viewModel.itemFilter.collectAsStateWithLifecycle()
-    val itemSort by viewModel.itemSort.collectAsStateWithLifecycle()
-    val equipFilter by viewModel.equipFilter.collectAsStateWithLifecycle()
-    val equipSort by viewModel.equipSort.collectAsStateWithLifecycle()
-
     val context = LocalContext.current
 
-    LaunchedEffect(Unit) {
-        viewModel.eventFlow.collect { event ->
+    LaunchedEffect(argument.event) {
+        argument.event.collect { event ->
             when (event) {
                 is ShopEvent.ShowToast -> Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
                 is ShopEvent.Error -> Toast.makeText(context, event.message, Toast.LENGTH_LONG).show()
@@ -62,65 +79,52 @@ fun ShopScreen(
         }
     }
 
-    if (selectedItemToBuy != null) {
-        val maxBuyable = (userGold / selectedItemToBuy!!.buyPrice).toInt()
-        val itemImage = getItemIcon(selectedItemToBuy!!.category)
+    if (data.selectedItemToBuy != null) {
+        val maxBuyable = (data.userGold / data.selectedItemToBuy.buyPrice).toInt()
+        val itemImage = getItemIcon(data.selectedItemToBuy.category)
         BuyDialog(
             imageUrl = itemImage,
-            name = selectedItemToBuy!!.name,
-            price = selectedItemToBuy!!.buyPrice,
+            name = data.selectedItemToBuy.name,
+            price = data.selectedItemToBuy.buyPrice,
             maxQuantity = 99,
             disableBuyReason = if (maxBuyable < 1) "골드가 부족합니다" else null,
-            onDismiss = { viewModel.onIntent(ShopIntent.OnConfirmBuyItem(0, 0)) },
+            onDismiss = { argument.intent(ShopIntent.OnConfirmBuyItem(0, 0)) },
             onBuy = { quantity ->
-                viewModel.onIntent(ShopIntent.OnConfirmBuyItem(selectedItemToBuy!!.id, quantity))
+                argument.intent(ShopIntent.OnConfirmBuyItem(data.selectedItemToBuy.id, quantity))
             }
         )
     }
 
-    if (selectedEquipToBuy != null) {
-        val canBuy = userGold >= selectedEquipToBuy!!.buyPrice
-        val equipImage = getEquipIcon(selectedEquipToBuy!!.category)
+    if (data.selectedEquipToBuy != null) {
+        val canBuy = data.userGold >= data.selectedEquipToBuy.buyPrice
+        val equipImage = getEquipIcon(data.selectedEquipToBuy.category)
         BuyDialog(
             imageUrl = equipImage,
-            name = selectedEquipToBuy!!.name,
-            price = selectedEquipToBuy!!.buyPrice,
+            name = data.selectedEquipToBuy.name,
+            price = data.selectedEquipToBuy.buyPrice,
             maxQuantity = 1,
             disableBuyReason = if (!canBuy) "골드가 부족합니다" else null,
-            onDismiss = { viewModel.onIntent(ShopIntent.OnConfirmBuyEquip(0)) },
+            onDismiss = { argument.intent(ShopIntent.OnConfirmBuyEquip(0)) },
             onBuy = { _ ->
-                viewModel.onIntent(ShopIntent.OnConfirmBuyEquip(selectedEquipToBuy!!.id))
+                argument.intent(ShopIntent.OnConfirmBuyEquip(data.selectedEquipToBuy.id))
             }
         )
     }
 
     ShopScreenContent(
-        userGold = userGold,
-        items = items,
-        baseEquips = baseEquips,
-        itemFilter = itemFilter,
-        itemSort = itemSort,
-        equipFilter = equipFilter,
-        equipSort = equipSort,
-        onIntent = viewModel::onIntent,
+        data = data,
+        onIntent = argument.intent,
         onBackClick = { navController.popBackStack() }
     )
 }
 
 @Composable
 fun ShopScreenContent(
-    userGold: Long,
-    items: List<Item>,
-    baseEquips: List<BaseEquip>,
-    itemFilter: ShopItemFilterType,
-    itemSort: ShopItemSortType,
-    equipFilter: ShopEquipFilterType,
-    equipSort: ShopEquipSortType,
+    data: ShopData,
     onIntent: (ShopIntent) -> Unit,
     onBackClick: () -> Unit
 ) {
-    var selectedTabIndex by remember { mutableIntStateOf(0) }
-    val tabs = listOf("Item", "Equip")
+    var selectedTab by remember { mutableStateOf(ShopTab.ITEM) }
 
     var filterExpanded by remember { mutableStateOf(false) }
     var sortExpanded by remember { mutableStateOf(false) }
@@ -149,9 +153,8 @@ fun ShopScreenContent(
                     }
                     Text(
                         text = "상점",
-                        color = Color.Black,
-                        fontSize = 30.sp,
-                        fontWeight = FontWeight.Bold
+                        style = MaterialTheme.typography.titleLarge,
+                        color = Color.Black
                     )
                     IconButton(onClick = { /* Info */ }) {
                         Icon(
@@ -186,29 +189,35 @@ fun ShopScreenContent(
                         .padding(16.dp)
                 ) {
                     Text(
-                        text = "$userGold G",
+                        text = "${data.userGold} G",
                         modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 18.sp
+                        style = MaterialTheme.typography.labelLarge
                     )
                 }
             }
 
             SecondaryTabRow(
-                selectedTabIndex = selectedTabIndex,
+                selectedTabIndex = selectedTab.ordinal,
                 containerColor = Color(0xFF878787),
                 indicator = { }
             ) {
-                tabs.forEachIndexed { index, title ->
+                ShopTab.values().forEach { tab ->
                     Tab(
-                        selected = selectedTabIndex == index,
-                        onClick = { selectedTabIndex = index },
-                        text = { Text(text = title, fontSize = 25.sp, fontWeight = FontWeight.Bold) },
+                        selected = selectedTab == tab,
+                        onClick = { selectedTab = tab },
+                        text = {
+                            Text(
+                                text = tab.displayName,
+                                style = MaterialTheme.typography.titleMedium
+                            )
+                        },
                         selectedContentColor = Color.Black,
                         unselectedContentColor = Color.Black.copy(alpha = 0.6f),
-                        modifier = Modifier.background(
-                            if (selectedTabIndex == index) Color(0xFFC3C3C3) else Color.Transparent
-                        )
+                        modifier = Modifier
+                            .height(50.dp)
+                            .background(
+                                if (selectedTab == tab) Color(0xFFC3C3C3) else Color.Transparent
+                            )
                     )
                 }
             }
@@ -222,8 +231,7 @@ fun ShopScreenContent(
             ) {
                 Text(
                     text = "판매 목록",
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.labelLarge,
                     color = Color.Black
                 )
 
@@ -236,22 +244,23 @@ fun ShopScreenContent(
                                 .padding(4.dp)
                         ) {
                             Text(
-                                text = if (selectedTabIndex == 0) itemFilter.displayName else equipFilter.displayName,
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight.Bold
+                                text = if (selectedTab == ShopTab.ITEM) data.itemFilter.displayName else data.equipFilter.displayName,
+                                style = MaterialTheme.typography.labelMedium
                             )
                             Icon(
                                 imageVector = Icons.Default.Menu,
                                 contentDescription = "Filter",
-                                modifier = Modifier.padding(start = 4.dp).size(20.dp)
+                                modifier = Modifier
+                                    .padding(start = 4.dp)
+                                    .size(20.dp)
                             )
                         }
                         DropdownMenu(
                             expanded = filterExpanded,
                             onDismissRequest = { filterExpanded = false }
                         ) {
-                            if (selectedTabIndex == 0) {
-                                ShopItemFilterType.values().forEach { type ->
+                            if (selectedTab == ShopTab.ITEM) {
+                                ItemFilterType.values().forEach { type ->
                                     DropdownMenuItem(
                                         text = { Text(type.displayName) },
                                         onClick = {
@@ -261,7 +270,7 @@ fun ShopScreenContent(
                                     )
                                 }
                             } else {
-                                ShopEquipFilterType.values().forEach { type ->
+                                EquipFilterType.values().forEach { type ->
                                     DropdownMenuItem(
                                         text = { Text(type.displayName) },
                                         onClick = {
@@ -286,54 +295,47 @@ fun ShopScreenContent(
                                 .padding(4.dp)
                         ) {
                             Text(
-                                text = if (selectedTabIndex == 0) itemSort.displayName else equipSort.displayName,
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight.Bold
+                                text = if (selectedTab == ShopTab.ITEM) data.itemSort.displayName else data.equipSort.displayName,
+                                style = MaterialTheme.typography.labelMedium
                             )
                             Icon(
                                 imageVector = Icons.Default.Menu,
                                 contentDescription = "Sort",
-                                modifier = Modifier.padding(start = 4.dp).size(20.dp)
+                                modifier = Modifier
+                                    .padding(start = 4.dp)
+                                    .size(20.dp)
                             )
                         }
                         DropdownMenu(
                             expanded = sortExpanded,
                             onDismissRequest = { sortExpanded = false }
                         ) {
-                            if (selectedTabIndex == 0) {
-                                ShopItemSortType.values().forEach { type ->
-                                    DropdownMenuItem(
-                                        text = { Text(type.displayName) },
-                                        onClick = {
+                            ShopSortType.values().forEach { type ->
+                                DropdownMenuItem(
+                                    text = { Text(type.displayName) },
+                                    onClick = {
+                                        if (selectedTab == ShopTab.ITEM) {
                                             onIntent(ShopIntent.OnItemSortChange(type))
-                                            sortExpanded = false
-                                        }
-                                    )
-                                }
-                            } else {
-                                ShopEquipSortType.values().forEach { type ->
-                                    DropdownMenuItem(
-                                        text = { Text(type.displayName) },
-                                        onClick = {
+                                        } else {
                                             onIntent(ShopIntent.OnEquipSortChange(type))
-                                            sortExpanded = false
                                         }
-                                    )
-                                }
+                                        sortExpanded = false
+                                    }
+                                )
                             }
                         }
                     }
                 }
             }
 
-            when (selectedTabIndex) {
-                0 -> {
+            when (selectedTab) {
+                ShopTab.ITEM -> {
                     LazyColumn(
                         modifier = Modifier.weight(1f),
                         contentPadding = PaddingValues(16.dp),
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        items(items) { item ->
+                        items(data.items) { item ->
                             val imageRes = getItemIcon(item.category)
                             ShopListItem(
                                 imageUrl = imageRes,
@@ -345,13 +347,13 @@ fun ShopScreenContent(
                         }
                     }
                 }
-                1 -> {
+                ShopTab.EQUIP -> {
                     LazyColumn(
                         modifier = Modifier.weight(1f),
                         contentPadding = PaddingValues(16.dp),
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        items(baseEquips) { equip ->
+                        items(data.baseEquips) { equip ->
                             val imageRes = getEquipIcon(equip.category)
                             ShopListItem(
                                 imageUrl = imageRes,
@@ -410,27 +412,30 @@ fun ShopListItem(
             ) {
                 Text(
                     text = name,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 16.sp
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.Bold
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = description,
-                    fontSize = 12.sp,
+                    style = MaterialTheme.typography.bodySmall,
                     color = Color.Black,
                     maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                    lineHeight = 16.sp
+                    overflow = TextOverflow.Ellipsis
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     text = "가격 : $price G",
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 14.sp
+                    style = MaterialTheme.typography.labelMedium
                 )
             }
         }
     }
+}
+
+private enum class ShopTab(val displayName: String) {
+    ITEM("Item"),
+    EQUIP("Equip")
 }
 
 private fun getItemIcon(category: ItemCategory): Int {
@@ -476,15 +481,18 @@ fun ShopScreenPreview() {
         )
     }
 
-    ShopScreenContent(
-        userGold = 50000,
-        items = dummyItems,
-        baseEquips = emptyList(),
-        itemFilter = ShopItemFilterType.ALL,
-        itemSort = ShopItemSortType.DEFAULT,
-        equipFilter = ShopEquipFilterType.ALL,
-        equipSort = ShopEquipSortType.DEFAULT,
-        onIntent = {},
-        onBackClick = {}
-    )
+    AutoAdventureTheme {
+        ShopScreen(
+            navController = NavController(LocalContext.current),
+            argument = ShopArgument(
+                state = ShopState.Success,
+                event = MutableSharedFlow(),
+                intent = {}
+            ),
+            data = ShopData.init().copy(
+                userGold = 50000,
+                items = dummyItems
+            )
+        )
+    }
 }

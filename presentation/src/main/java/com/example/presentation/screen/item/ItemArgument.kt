@@ -1,5 +1,7 @@
 package com.example.presentation.screen.item
 
+import com.example.domain.model.feature.types.EquipFilterType
+import com.example.domain.model.feature.types.ItemFilterType
 import com.example.presentation.utils.error.ErrorEvent
 import kotlinx.coroutines.flow.Flow
 
@@ -17,26 +19,11 @@ sealed class ItemState {
     data object OnProgress : ItemState()
 }
 
-enum class ItemFilterType(val displayName: String) {
-    ALL("전체"),
-    CONSUMABLE("소비"),
-    BUFF("버프"),
-    INGREDIENT("재료"),
-    ETC("기타")
-}
-
 enum class ItemSortType(val displayName: String) {
     DEFAULT("기본값"),
     NAME("이름순"),
     PRICE("가격순"),
     QUANTITY("개수순")
-}
-
-enum class EquipFilterType(val displayName: String) {
-    ALL("전체"),
-    WEAPON("무기"),
-    ARMOR("방어구"),
-    ACCESSORY("장신구")
 }
 
 enum class EquipSortType(val displayName: String) {
@@ -69,6 +56,7 @@ sealed class ItemEvent {
             override val exceptionMessage: String?
         ) : DataFetch(), ErrorEvent
     }
+
     // [추가] 강화 성공/실패 메시지용 이벤트 등도 필요하다면 여기에 추가
     data class ReinforceResult(val isSuccess: Boolean, val message: String) : ItemEvent()
 }

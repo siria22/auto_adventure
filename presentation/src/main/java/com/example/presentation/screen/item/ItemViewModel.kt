@@ -3,7 +3,7 @@ package com.example.presentation.screen.item
 import androidx.lifecycle.viewModelScope
 import com.example.domain.model.feature.inventory.InventoryItem
 import com.example.domain.model.feature.inventory.Item
-import com.example.domain.model.feature.types.ItemCategory
+import com.example.domain.model.feature.types.ItemFilterType
 import com.example.domain.repository.feature.guild.GuildRepository
 import com.example.domain.repository.feature.inventory.InventoryRepository
 import com.example.domain.repository.feature.inventory.ItemRepository
@@ -169,24 +169,8 @@ class ItemViewModel @Inject constructor(
             }
         }
 
-        val filteredList = when (filter) {
-            ItemFilterType.ALL -> combinedList
-            ItemFilterType.CONSUMABLE -> combinedList.filter {
-                it.detail.category == ItemCategory.HEALING ||
-                        it.detail.category == ItemCategory.SCROLL
-            }
-
-            ItemFilterType.BUFF -> combinedList.filter {
-                it.detail.category == ItemCategory.BUFF
-            }
-
-            ItemFilterType.INGREDIENT -> combinedList.filter {
-                it.detail.category == ItemCategory.INGREDIENT
-            }
-
-            ItemFilterType.ETC -> combinedList.filter {
-                it.detail.category == ItemCategory.ETC
-            }
+        val filteredList = combinedList.filter {
+            filter.matches(it.detail.category)
         }
 
         val sortedList = when (sort) {

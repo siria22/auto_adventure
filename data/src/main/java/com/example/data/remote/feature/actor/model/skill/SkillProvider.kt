@@ -7,7 +7,7 @@ import kotlinx.serialization.json.Json
 import javax.inject.Inject
 
 class SkillProvider @Inject constructor(
-    @ApplicationContext private val context: Context
+    @param:ApplicationContext private val context: Context
 ) {
     private val skills: List<SkillEntity> by lazy {
         parseSkills()

@@ -4,6 +4,8 @@ import androidx.lifecycle.viewModelScope
 import com.example.domain.model.feature.inventory.BaseEquip
 import com.example.domain.model.feature.inventory.CustomizedEquip
 import com.example.domain.model.feature.inventory.Item
+import com.example.domain.model.feature.types.EquipFilterType
+import com.example.domain.model.feature.types.ItemFilterType
 import com.example.domain.repository.feature.guild.GuildRepository
 import com.example.domain.repository.feature.inventory.BaseEquipRepository
 import com.example.domain.repository.feature.inventory.CustomizedEquipRepository
@@ -35,17 +37,17 @@ class ShopViewModel @Inject constructor(
     private val _originalItems = MutableStateFlow<List<Item>>(emptyList())
     private val _originalEquips = MutableStateFlow<List<BaseEquip>>(emptyList())
 
-    private val _itemFilter = MutableStateFlow(ShopItemFilterType.ALL)
-    val itemFilter: StateFlow<ShopItemFilterType> = _itemFilter
+    private val _itemFilter = MutableStateFlow(ItemFilterType.ALL)
+    val itemFilter: StateFlow<ItemFilterType> = _itemFilter
 
-    private val _itemSort = MutableStateFlow(ShopItemSortType.DEFAULT)
-    val itemSort: StateFlow<ShopItemSortType> = _itemSort
+    private val _itemSort = MutableStateFlow(ShopSortType.DEFAULT)
+    val itemSort: StateFlow<ShopSortType> = _itemSort
 
-    private val _equipFilter = MutableStateFlow(ShopEquipFilterType.ALL)
-    val equipFilter: StateFlow<ShopEquipFilterType> = _equipFilter
+    private val _equipFilter = MutableStateFlow(EquipFilterType.ALL)
+    val equipFilter: StateFlow<EquipFilterType> = _equipFilter
 
-    private val _equipSort = MutableStateFlow(ShopEquipSortType.DEFAULT)
-    val equipSort: StateFlow<ShopEquipSortType> = _equipSort
+    private val _equipSort = MutableStateFlow(ShopSortType.DEFAULT)
+    val equipSort: StateFlow<ShopSortType> = _equipSort
 
     private val _userGold = MutableStateFlow(0L)
     val userGold: StateFlow<Long> = _userGold
@@ -58,36 +60,33 @@ class ShopViewModel @Inject constructor(
 
     val items: StateFlow<List<Item>> = combine(_originalItems, _itemFilter, _itemSort) { items, filter, sort ->
         var result = items
-
-        if (filter != ShopItemFilterType.ALL) {
+        if (filter != ItemFilterType.ALL) {
             result = result.filter { filter.matches(it.category) }
         }
-
-        result = when(sort) {
-            ShopItemSortType.DEFAULT -> result
-            ShopItemSortType.NAME -> result.sortedBy { it.name }
-            ShopItemSortType.PRICE_LOW -> result.sortedBy { it.buyPrice }
-            ShopItemSortType.PRICE_HIGH -> result.sortedByDescending { it.buyPrice }
-        }
-        result
+        applySort(result, sort) { it.name to it.buyPrice }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
 
     val baseEquips: StateFlow<List<BaseEquip>> = combine(_originalEquips, _equipFilter, _equipSort) { equips, filter, sort ->
         var result = equips
-
-        if (filter != ShopEquipFilterType.ALL) {
+        if (filter != EquipFilterType.ALL) {
             result = result.filter { filter.matches(it.category) }
         }
-
-        result = when(sort) {
-            ShopEquipSortType.DEFAULT -> result
-            ShopEquipSortType.NAME -> result.sortedBy { it.name }
-            ShopEquipSortType.PRICE_LOW -> result.sortedBy { it.buyPrice }
-            ShopEquipSortType.PRICE_HIGH -> result.sortedByDescending { it.buyPrice }
-        }
-        result
+        applySort(result, sort) { it.name to it.buyPrice }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    private fun <T> applySort(
+        list: List<T>,
+        sort: ShopSortType,
+        selector: (T) -> Pair<String, Long>
+    ): List<T> {
+        return when(sort) {
+            ShopSortType.DEFAULT -> list
+            ShopSortType.NAME -> list.sortedBy { selector(it).first }
+            ShopSortType.PRICE_LOW -> list.sortedBy { selector(it).second }
+            ShopSortType.PRICE_HIGH -> list.sortedByDescending { selector(it).second }
+        }
+    }
 
     init {
         loadShopData()
