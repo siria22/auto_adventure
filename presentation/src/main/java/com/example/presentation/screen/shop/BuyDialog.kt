@@ -85,7 +85,6 @@ fun BuyDialog(
                     ) {
                         Text(
                             text = "-",
-                            fontSize = 20.sp,
                             style = MaterialTheme.typography.titleSmall,
                             color = if (quantity > 1 && disableBuyReason == null) Color.Black else Color.Gray
                         )
