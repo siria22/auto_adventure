@@ -41,9 +41,7 @@ fun NavGraphBuilder.itemDestination(navController: NavController) {
             ItemData(
                 displayedItems = displayedItems,
                 selectedFilter = selectedFilter,
-                selectedSort = selectedSort,
-                totalWeight = 0.0, // TODO
-                maxWeight = 0.0    // TODO
+                selectedSort = selectedSort
             )
         }
 

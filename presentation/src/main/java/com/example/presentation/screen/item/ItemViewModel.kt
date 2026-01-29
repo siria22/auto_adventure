@@ -4,10 +4,10 @@ import androidx.lifecycle.viewModelScope
 import com.example.domain.model.feature.inventory.InventoryItem
 import com.example.domain.model.feature.inventory.Item
 import com.example.domain.model.feature.types.ItemFilterType
-import com.example.domain.repository.feature.guild.GuildRepository
-import com.example.domain.repository.feature.inventory.InventoryRepository
-import com.example.domain.repository.feature.inventory.ItemRepository
 import com.example.domain.usecase.inventory.GetInventoryUseCase
+import com.example.domain.usecase.inventory.GetItemByIdUseCase
+import com.example.domain.usecase.inventory.GetItemListUseCase
+import com.example.domain.usecase.inventory.SellItemUseCase
 import com.example.presentation.utils.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -23,9 +23,9 @@ import javax.inject.Inject
 @HiltViewModel
 class ItemViewModel @Inject constructor(
     private val getInventoryUseCase: GetInventoryUseCase,
-    private val itemRepository: ItemRepository,
-    private val inventoryRepository: InventoryRepository,
-    private val guildRepository: GuildRepository
+    private val getItemListUseCase: GetItemListUseCase,
+    private val getItemByIdUseCase: GetItemByIdUseCase,
+    private val sellItemUseCase: SellItemUseCase
 ) : BaseViewModel() {
 
     private val _state = MutableStateFlow<ItemState>(ItemState.Init)
@@ -55,15 +55,13 @@ class ItemViewModel @Inject constructor(
         initialValue = emptyList()
     )
 
-    // TODO: totalWeight, maxWeight StateFlow 추가 필요
-
     private val _selectedItemDetail = MutableStateFlow<Item?>(null)
     val selectedItemDetail: StateFlow<Item?> = _selectedItemDetail
 
     fun onIntent(intent: ItemIntent) {
         when (intent) {
             is ItemIntent.OnItemClick -> {
-                viewModelScope.launch {
+                launch {
                     loadItemDetail(intent.itemId)
                 }
             }
@@ -77,7 +75,7 @@ class ItemViewModel @Inject constructor(
             }
 
             is ItemIntent.OnSellItem -> {
-                viewModelScope.launch {
+                launch {
                     sellItem(intent.itemId, intent.quantity)
                 }
             }
@@ -89,38 +87,25 @@ class ItemViewModel @Inject constructor(
     }
 
     init {
-        viewModelScope.launch {
+        launch {
             loadAllItems()
             loadInventory()
         }
     }
 
     private suspend fun sellItem(itemId: Long, quantity: Int) {
-        val currentInventory = _inventoryItems.value.find { it.itemId == itemId } ?: return
-        val itemInfo = _allItems.value.find { it.id == itemId } ?: return
-
-        val gainGold = itemInfo.sellPrice * quantity
-
-        val remainingAmount = currentInventory.amount - quantity
-
-        runCatching {
-            if (remainingAmount <= 0) {
-                inventoryRepository.deleteInventory(currentInventory)
-            } else {
-                inventoryRepository.updateInventory(currentInventory.copy(amount = remainingAmount))
+        sellItemUseCase(partyId = 1L, itemId = itemId, quantity = quantity) // TODO: partyId 주입
+            .onSuccess {
+                loadInventory()
+            }.onFailure { ex ->
+                emitErrorMessage("아이템 판매 중 오류가 발생했습니다.", ex)
             }
-            guildRepository.updateGold(gainGold)
-        }.onSuccess {
-            loadInventory()
-        }.onFailure { ex ->
-            emitErrorMessage("아이템 판매 중 오류가 발생했습니다.", ex)
-        }
     }
 
     private suspend fun loadInventory() {
         _state.value = ItemState.OnProgress
         runCatching {
-            getInventoryUseCase(partyId = 1L) // 임시 partyId
+            getInventoryUseCase(partyId = 1L) // TODO 임시 partyId
         }.onSuccess { result ->
             _inventoryItems.value = result.getOrThrow()
         }.onFailure { ex ->
@@ -131,13 +116,12 @@ class ItemViewModel @Inject constructor(
 
     private suspend fun loadItemDetail(itemId: Long) {
         _selectedItemDetail.value = null
-        runCatching {
-            itemRepository.getItemById(itemId)
-        }.onSuccess { result ->
-            _selectedItemDetail.value = result.getOrNull()
-        }.onFailure { ex ->
-            emitErrorMessage("아이템 상세 정보를 불러오는데 실패했습니다.", ex)
-        }
+        getItemByIdUseCase(itemId)
+            .onSuccess { result ->
+                _selectedItemDetail.value = result
+            }.onFailure { ex ->
+                emitErrorMessage("아이템 상세 정보를 불러오는데 실패했습니다.", ex)
+            }
     }
 
     private suspend fun emitErrorMessage(userMessage: String, ex: Throwable) {
@@ -183,12 +167,11 @@ class ItemViewModel @Inject constructor(
     }
 
     private suspend fun loadAllItems() {
-        runCatching {
-            itemRepository.getItemList()
-        }.onSuccess { items ->
-            _allItems.value = items
-        }.onFailure { ex ->
-            emitErrorMessage("전체 아이템 정보를 불러오는데 실패했습니다.", ex)
-        }
+        getItemListUseCase()
+            .onSuccess { items ->
+                _allItems.value = items
+            }.onFailure { ex ->
+                emitErrorMessage("전체 아이템 정보를 불러오는데 실패했습니다.", ex)
+            }
     }
 }

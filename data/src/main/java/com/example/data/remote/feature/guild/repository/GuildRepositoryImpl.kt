@@ -47,10 +47,6 @@ class GuildRepositoryImpl @Inject constructor(
         guildPreferenceProvider.updateGold(amount)
     }
 
-    override suspend fun getGold(): Long {
-        return guildPreferenceProvider.observeGold().first()
-    }
-
     override fun observeGold(): Flow<Long> {
         return guildPreferenceProvider.observeGold()
     }

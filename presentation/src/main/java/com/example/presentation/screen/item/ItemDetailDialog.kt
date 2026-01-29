@@ -14,15 +14,14 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.example.presentation.R
 import com.example.presentation.component.ui.molecule.item.ItemCard
@@ -50,13 +49,23 @@ fun ItemDetailDialog(
                     ItemCard(imageUrl = R.drawable.ic_potion_red, quantity = quantity)
                     Spacer(modifier = Modifier.width(16.dp))
                     Column {
-                        Text(text = itemName, fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                        Text(text = "보유 수량 : $quantity", fontSize = 14.sp, color = Color.Gray)
+                        Text(
+                            text = itemName,
+                            style = MaterialTheme.typography.labelLarge
+                        )
+                        Text(
+                            text = "보유 수량 : $quantity",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color.Gray
+                        )
                         Spacer(modifier = Modifier.height(8.dp))
-                        Text(text = itemShortDesc, fontSize = 14.sp)
+                        Text(
+                            text = itemShortDesc,
+                            style = MaterialTheme.typography.bodyMedium
+                        )
                         Text(
                             text = "획득 방법: $itemObtainMethod",
-                            fontSize = 12.sp,
+                            style = MaterialTheme.typography.bodySmall,
                             color = Color.Gray
                         )
                     }
@@ -66,7 +75,10 @@ fun ItemDetailDialog(
                 Divider()
                 Spacer(modifier = Modifier.height(16.dp))
 
-                Text(text = itemFullDesc, fontSize = 14.sp)
+                Text(
+                    text = itemFullDesc,
+                    style = MaterialTheme.typography.bodyMedium
+                )
 
                 Spacer(modifier = Modifier.height(24.dp))
 

@@ -4,11 +4,13 @@ import androidx.lifecycle.viewModelScope
 import com.example.domain.model.feature.inventory.BaseEquip
 import com.example.domain.model.feature.inventory.CustomizedEquip
 import com.example.domain.model.feature.types.EquipFilterType
-import com.example.domain.repository.feature.guild.GuildRepository
-import com.example.domain.repository.feature.inventory.BaseEquipRepository
-import com.example.domain.repository.feature.inventory.CustomizedEquipRepository
-import com.example.domain.repository.feature.inventory.InventoryRepository
+import com.example.domain.usecase.feature.equip.GetAllEquipsUseCase
+import com.example.domain.usecase.feature.equip.GetEquipDetailUseCase
+import com.example.domain.usecase.feature.equip.GetReinforceInfoUseCase
+import com.example.domain.usecase.feature.equip.ReinforceEquipUseCase
+import com.example.domain.usecase.feature.equip.SellEquipUseCase
 import com.example.presentation.R
+import com.example.presentation.component.ui.molecule.item.ReinforceMaterial
 import com.example.presentation.utils.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -23,10 +25,11 @@ import javax.inject.Inject
 
 @HiltViewModel
 class EquipViewModel @Inject constructor(
-    private val baseEquipRepository: BaseEquipRepository,
-    private val customizedEquipRepository: CustomizedEquipRepository,
-    private val guildRepository: GuildRepository,
-    private val inventoryRepository: InventoryRepository
+    private val getAllEquipsUseCase: GetAllEquipsUseCase,
+    private val getEquipDetailUseCase: GetEquipDetailUseCase,
+    private val sellEquipUseCase: SellEquipUseCase,
+    private val getReinforceInfoUseCase: GetReinforceInfoUseCase,
+    private val reinforceEquipUseCase: ReinforceEquipUseCase
 ) : BaseViewModel() {
 
     private val _eventFlow = MutableSharedFlow<ItemEvent>()
@@ -60,7 +63,7 @@ class EquipViewModel @Inject constructor(
     fun onIntent(intent: ItemIntent) {
         when (intent) {
             is ItemIntent.OnEquipClick -> {
-                viewModelScope.launch {
+                launch {
                     loadEquipDetail(intent.equipId)
                 }
             }
@@ -74,19 +77,19 @@ class EquipViewModel @Inject constructor(
             }
 
             is ItemIntent.OnSellEquip -> {
-                viewModelScope.launch {
+                launch {
                     sellEquip(intent.equipId)
                 }
             }
 
             is ItemIntent.OnRequestReinforce -> {
-                viewModelScope.launch {
+                launch {
                     prepareReinforce(intent.equipId)
                 }
             }
 
             is ItemIntent.OnExecuteReinforce -> {
-                viewModelScope.launch {
+                launch {
                     executeReinforce(intent.equipId)
                 }
             }
@@ -102,98 +105,70 @@ class EquipViewModel @Inject constructor(
     }
 
     init {
-        viewModelScope.launch {
+        launch {
             loadAllEquipments()
         }
+    }
+
+    private suspend fun loadAllEquipments() {
+        getAllEquipsUseCase()
+            .onSuccess { data ->
+                _allBaseEquips.value = data.baseEquips
+                _allCustomizedEquips.value = data.customizedEquips
+            }
+            .onFailure { ex ->
+                _eventFlow.emit(
+                    ItemEvent.DataFetch.Error(
+                        userMessage = "전체 장비 정보를 불러오는데 실패했습니다.",
+                        exceptionMessage = ex.message
+                    )
+                )
+            }
     }
 
     private suspend fun prepareReinforce(equipId: Long) {
-        val targetEquip = _allCustomizedEquips.value.find { it.id == equipId } ?: return
-        val currentLevel = targetEquip.reinforcement.toLong()
-        val nextLevel = currentLevel + 1
+        getReinforceInfoUseCase(equipId)
+            .onSuccess { info ->
+                val materials = listOf(
+                    ReinforceMaterial(
+                        name = "슬라임 점액",
+                        iconResId = R.drawable.ic_potion_red,
+                        currentAmount = info.currentMaterialAmount,
+                        requiredAmount = info.requiredMaterialAmount
+                    ),
+                    ReinforceMaterial(
+                        name = "골드",
+                        iconResId = R.drawable.ic_potion_red,
+                        currentAmount = info.currentGold,
+                        requiredAmount = info.requiredGold
+                    )
+                )
 
-        // 비용 계산 (임시 로직)
-        // 골드: (레벨 + 1) * 500
-        val requiredGold = nextLevel * 500
-        // 재료: 슬라임 점액(ID: 3) (레벨 + 1) * 2 개
-        val requiredSlime = nextLevel * 2
+                val detail = createEquipDetail(info.targetEquip) ?: return
 
-        val currentGold = guildRepository.getGold()
-        val slimeItem = inventoryRepository.findItem(1L, 3L) // ID 3: 슬라임 점액
-        val currentSlime = slimeItem?.amount ?: 0L
+                _reinforceState.value = ReinforceUiState(
+                    targetEquip = detail,
+                    materials = materials,
+                    isAffordable = info.isAffordable,
+                    imageUrl = R.drawable.ic_ironsword
+                )
+            }.onFailure {
 
-        val materials = listOf(
-            ReinforceMaterial(
-                name = "슬라임 점액",
-                iconResId = R.drawable.ic_potion_red, // TODO: 슬라임 아이콘으로 교체 필요
-                currentAmount = currentSlime,
-                requiredAmount = requiredSlime
-            ),
-            ReinforceMaterial(
-                name = "골드",
-                iconResId = R.drawable.ic_potion_red, // TODO: 골드 아이콘으로 교체 필요
-                currentAmount = currentGold,
-                requiredAmount = requiredGold
-            )
-        )
-
-        val isAffordable = currentGold >= requiredGold && currentSlime >= requiredSlime
-
-        val detail = createEquipDetail(targetEquip) ?: return
-
-        _reinforceState.value = ReinforceUiState(
-            targetEquip = detail,
-            materials = materials,
-            isAffordable = isAffordable,
-            imageUrl = R.drawable.ic_ironsword // TODO: 실제 아이콘 매핑
-        )
+            }
     }
 
+
     private suspend fun executeReinforce(equipId: Long) {
-        val state = _reinforceState.value ?: return
-        if (!state.isAffordable) {
-            _eventFlow.emit(ItemEvent.ReinforceResult(false, "재료가 부족합니다."))
-            return
-        }
-
-        val goldMaterial = state.materials.find { it.name == "골드" }!!
-        val slimeMaterial = state.materials.find { it.name == "슬라임 점액" }!!
-
-        runCatching {
-            guildRepository.updateGold(-goldMaterial.requiredAmount)
-
-            val slimeInventoryItem = inventoryRepository.findItem(1L, 3L)
-            if (slimeInventoryItem != null) {
-                val newAmount = slimeInventoryItem.amount - slimeMaterial.requiredAmount
-                if (newAmount > 0) {
-                    inventoryRepository.updateInventory(slimeInventoryItem.copy(amount = newAmount))
-                } else {
-                    inventoryRepository.deleteInventory(slimeInventoryItem)
-                }
+        reinforceEquipUseCase(equipId)
+            .onSuccess { newEquip ->
+                loadAllEquipments()
+                loadEquipDetail(equipId)
+                dismissReinforceDialog()
+                _eventFlow.emit(ItemEvent.ReinforceResult(true, "강화에 성공했습니다! (+${newEquip.reinforcement})"))
             }
-
-            val targetEquip = customizedEquipRepository.getEquipById(equipId)
-                ?: throw IllegalStateException("장비가 존재하지 않습니다.")
-
-            val newEquip = targetEquip.copy(
-                reinforcement = targetEquip.reinforcement + 1
-            )
-            customizedEquipRepository.insertEquip(newEquip)
-
-            loadAllEquipments()
-            loadEquipDetail(equipId)
-
-            dismissReinforceDialog()
-            _eventFlow.emit(
-                ItemEvent.ReinforceResult(
-                    true,
-                    "강화에 성공했습니다! (+${newEquip.reinforcement})"
-                )
-            )
-
-        }.onFailure { e ->
-            _eventFlow.emit(ItemEvent.ReinforceResult(false, "강화 중 오류 발생: ${e.message}"))
-        }
+            .onFailure { e ->
+                _eventFlow.emit(ItemEvent.ReinforceResult(false, "강화 실패: ${e.message}"))
+            }
     }
 
     fun dismissReinforceDialog() {
@@ -201,49 +176,18 @@ class EquipViewModel @Inject constructor(
     }
 
     private suspend fun sellEquip(customizedId: Long) {
-        val targetEquip = _allCustomizedEquips.value.find { it.id == customizedId }
-            ?: customizedEquipRepository.getEquipById(customizedId)
-            ?: run {
+        sellEquipUseCase(customizedId)
+            .onSuccess {
+                loadAllEquipments()
+            }
+            .onFailure { ex ->
                 _eventFlow.emit(
                     ItemEvent.DataFetch.Error(
-                        userMessage = "판매할 장비를 찾을 수 없습니다.",
-                        exceptionMessage = null
+                        userMessage = "장비 판매 중 오류가 발생했습니다.",
+                        exceptionMessage = ex.message
                     )
                 )
-                return
             }
-
-        runCatching {
-            guildRepository.updateGold(targetEquip.modifiedSellPrice)
-            customizedEquipRepository.deleteEquip(targetEquip)
-        }.onSuccess {
-            loadAllEquipments()
-        }.onFailure { ex ->
-            _eventFlow.emit(
-                ItemEvent.DataFetch.Error(
-                    userMessage = "장비 판매 중 오류가 발생했습니다.",
-                    exceptionMessage = ex.message
-                )
-            )
-        }
-    }
-
-    private suspend fun loadAllEquipments() {
-        runCatching {
-            _allBaseEquips.value = baseEquipRepository.getBaseEquipList()
-
-            val playerEquips = customizedEquipRepository.getEquipsByOwnerId(1L)
-            val unequippedEquips = customizedEquipRepository.getEquipsByOwnerId(0L)
-
-            _allCustomizedEquips.value = playerEquips + unequippedEquips
-        }.onFailure { ex ->
-            _eventFlow.emit(
-                ItemEvent.DataFetch.Error(
-                    userMessage = "전체 장비 정보를 불러오는데 실패했습니다.",
-                    exceptionMessage = ex.message
-                )
-            )
-        }
     }
 
     private fun applyEquipFilterAndSort(
@@ -265,7 +209,8 @@ class EquipViewModel @Inject constructor(
                     name = base.name,
                     category = base.category,
                     reinforcement = customized.reinforcement,
-                    rank = customized.rank
+                    rank = customized.rank,
+                    isEquipped = customized.ownerId != 0L
                 )
             }
         }
@@ -277,47 +222,39 @@ class EquipViewModel @Inject constructor(
         return when (sort) {
             EquipSortType.DEFAULT -> filteredList
             EquipSortType.REINFORCEMENT -> filteredList.sortedByDescending { it.reinforcement }
-            EquipSortType.RANK -> filteredList.sortedBy { it.rank } // 등급 정렬 기준은 나중에 구체화 필요
+            EquipSortType.RANK -> filteredList.sortedBy { it.rank } //TODO 등급 정렬 기준은 나중에 구체화 필요
         }
     }
 
     private suspend fun loadEquipDetail(equipId: Long) {
         _selectedEquipDetail.value = null
-        runCatching {
-            val customized = customizedEquipRepository.getEquipById(equipId)
-                ?: throw NoSuchElementException("장비를 찾을 수 없습니다.")
-
-            val base = _allBaseEquips.value.find { it.id == customized.equipId }
-                ?: baseEquipRepository.getBaseEquipById(customized.equipId)
-                    .getOrNull()
-                ?: throw NoSuchElementException("베이스 장비 정보를 찾을 수 없습니다.")
-
-            EquipDetail(
-                id = customized.id,
-                name = base.name,
-                reinforcement = customized.reinforcement,
-                ownerName = if (customized.ownerId == 0L) "미착용" else "플레이어",
-                ownerId = customized.ownerId,
-                description = base.description,
-                statDescription = "${base.increaseStat.name} +${base.increaseAmount} (+${customized.getIncreasedAmount()})",
-                category = base.category,
-                sellPrice = customized.modifiedSellPrice
-            )
-        }.onSuccess { detail ->
-            _selectedEquipDetail.value = detail
-        }.onFailure { ex ->
-            _eventFlow.emit(
-                ItemEvent.DataFetch.Error(
-                    userMessage = "장비 상세 정보를 불러오는데 실패했습니다.",
-                    exceptionMessage = ex.message
+        getEquipDetailUseCase(equipId)
+            .onSuccess { (customized, base) ->
+                val detail = EquipDetail(
+                    id = customized.id,
+                    name = base.name,
+                    reinforcement = customized.reinforcement,
+                    ownerName = if (customized.ownerId == 0L) "미착용" else "플레이어",
+                    ownerId = customized.ownerId,
+                    description = base.description,
+                    statDescription = "${base.increaseStat.name} +${base.increaseAmount} (+${customized.getIncreasedAmount()})",
+                    category = base.category,
+                    sellPrice = customized.modifiedSellPrice
                 )
-            )
-        }
+                _selectedEquipDetail.value = detail
+            }
+            .onFailure { ex ->
+                _eventFlow.emit(
+                    ItemEvent.DataFetch.Error(
+                        userMessage = "장비 상세 정보를 불러오는데 실패했습니다.",
+                        exceptionMessage = ex.message
+                    )
+                )
+            }
     }
 
-    private suspend fun createEquipDetail(customized: CustomizedEquip): EquipDetail? {
+    private fun createEquipDetail(customized: CustomizedEquip): EquipDetail? {
         val base = _allBaseEquips.value.find { it.id == customized.equipId }
-            ?: baseEquipRepository.getBaseEquipById(customized.equipId).getOrNull()
             ?: return null
 
         return EquipDetail(

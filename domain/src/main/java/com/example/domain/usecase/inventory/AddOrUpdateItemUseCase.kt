@@ -3,13 +3,13 @@ package com.example.domain.usecase.inventory
 import com.example.domain.model.feature.inventory.InventoryItem
 import com.example.domain.repository.feature.inventory.InventoryRepository
 import com.example.domain.repository.feature.inventory.ItemRepository
-import com.example.domain.usecase.party.PartyUseCase
+import com.example.domain.usecase.feature.party.PartyMaxInventoryWeightUseCase
 import javax.inject.Inject
 
 class AddOrUpdateItemUseCase @Inject constructor(
     private val inventoryRepository: InventoryRepository,
     private val itemRepository: ItemRepository,
-    private val partyUseCase: PartyUseCase
+    private val partyUseCase: PartyMaxInventoryWeightUseCase
 ) {
     suspend operator fun invoke(partyId: Long, itemId: Long, amountToAdd: Long): Result<Unit> {
         val itemObject = itemRepository.getItemById(itemId).getOrNull()

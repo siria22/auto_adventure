@@ -43,7 +43,7 @@ class HomeViewModel @Inject constructor(
             }
 
             is HomeIntent.Refresh -> {
-                viewModelScope.launch {
+                launch {
                     initAndRefresh()
                 }
             }
@@ -51,13 +51,13 @@ class HomeViewModel @Inject constructor(
     }
 
     init {
-        viewModelScope.launch {
+        launch {
             getPlayerMoneyUseCase().collectLatest { money ->
                 _guildMoney.value = money
             }
         }
 
-        viewModelScope.launch {
+        launch {
             initAndRefresh()
         }
     }

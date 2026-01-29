@@ -10,7 +10,7 @@ import com.example.domain.repository.feature.inventory.InventoryRepository
 import com.example.domain.repository.feature.inventory.ItemRepository
 import com.example.domain.repository.feature.party.PartyRepository
 import com.example.domain.usecase.inventory.AddOrUpdateItemUseCase
-import com.example.domain.usecase.party.PartyUseCase
+import com.example.domain.usecase.feature.party.PartyMaxInventoryWeightUseCase
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.*
 import org.junit.Before
@@ -64,7 +64,7 @@ class AddOrUpdateItemUseCaseTest {
 
     // 이제 partyRepository를 제대로 넘겨줄 수 있음
     class FakePartyUseCase(private val maxWeight: Double) :
-        PartyUseCase(partyRepository = FakePartyRepository()) {
+        PartyMaxInventoryWeightUseCase(partyRepository = FakePartyRepository()) {
         override suspend fun getMaxInventoryWeight(partyId: Long): Double {
             return maxWeight
         }

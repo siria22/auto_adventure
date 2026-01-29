@@ -62,8 +62,7 @@ fun BuyDialog(
 
                 Text(
                     text = name,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.labelLarge,
                     color = Color.Black,
                     textAlign = TextAlign.Center
                 )
@@ -87,7 +86,7 @@ fun BuyDialog(
                         Text(
                             text = "-",
                             fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold,
+                            style = MaterialTheme.typography.titleSmall,
                             color = if (quantity > 1 && disableBuyReason == null) Color.Black else Color.Gray
                         )
                     }
@@ -101,8 +100,7 @@ fun BuyDialog(
                     ) {
                         Text(
                             text = quantity.toString(),
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Bold
+                            style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
                         )
                     }
 
@@ -116,8 +114,7 @@ fun BuyDialog(
                     ) {
                         Text(
                             text = "+",
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold,
+                            style = MaterialTheme.typography.titleSmall,
                             color = if (quantity < maxQuantity && disableBuyReason == null) Color.Black else Color.Gray
                         )
                     }
@@ -127,8 +124,7 @@ fun BuyDialog(
 
                 Text(
                     text = "총 구매 가격: $totalPrice G",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium,
+                    style = MaterialTheme.typography.bodyLarge,
                     color = Color.Black
                 )
 
@@ -136,8 +132,7 @@ fun BuyDialog(
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(
                         text = disableBuyReason,
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Bold,
+                        style = MaterialTheme.typography.labelMedium,
                         color = Color.Red,
                         textAlign = TextAlign.Center
                     )

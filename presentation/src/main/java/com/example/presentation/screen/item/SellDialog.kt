@@ -18,6 +18,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -33,7 +34,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.example.presentation.R
 import com.example.presentation.component.theme.AutoAdventureTheme
@@ -81,8 +81,7 @@ fun SellDialog(
 
                 Text(
                     text = name,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.labelLarge,
                     color = Color.Black,
                     textAlign = TextAlign.Center
                 )
@@ -105,8 +104,7 @@ fun SellDialog(
                     ) {
                         Text(
                             text = "-",
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold,
+                            style = MaterialTheme.typography.titleSmall,
                             color = if (quantity > 1 && disableSellReason == null) Color.Black else Color.Gray
                         )
                     }
@@ -120,8 +118,7 @@ fun SellDialog(
                     ) {
                         Text(
                             text = quantity.toString(),
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Bold
+                            style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
                         )
                     }
 
@@ -135,8 +132,7 @@ fun SellDialog(
                     ) {
                         Text(
                             text = "+",
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold,
+                            style = MaterialTheme.typography.titleSmall,
                             color = if (quantity < maxQuantity && disableSellReason == null) Color.Black else Color.Gray
                         )
                     }
@@ -146,8 +142,7 @@ fun SellDialog(
 
                 Text(
                     text = "총 판매 가격: ${totalPrice} G",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium,
+                    style = MaterialTheme.typography.bodyLarge,
                     color = Color.Black
                 )
 
@@ -155,8 +150,7 @@ fun SellDialog(
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(
                         text = disableSellReason,
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Bold,
+                        style = MaterialTheme.typography.labelMedium,
                         color = Color.Red,
                         textAlign = TextAlign.Center
                     )

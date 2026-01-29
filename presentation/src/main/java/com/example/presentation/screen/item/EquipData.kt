@@ -7,11 +7,11 @@ data class EquipDetail(
     val id: Long,
     val name: String,
     val reinforcement: Long,
-    val ownerName: String, // 일단 placeholder로 처리
-    val ownerId: Long, // [추가] 장착 대상 ID (0이면 미착용)
+    val ownerName: String, //TODO 일단 placeholder로 처리
+    val ownerId: Long, //TODO 장착 대상 ID (0이면 미착용)
     val description: String,
-    val statDescription: String, // 예: 공격력 +3 (+3)
-    val obtainMethod: String = "상점 구매", // 데이터 없음, 하드코딩
+    val statDescription: String,
+    val obtainMethod: String = "상점 구매", //TODO 데이터 없음, 하드코딩
     val category: EquipCategory,
     val sellPrice: Long
 )
@@ -21,7 +21,8 @@ data class DisplayedEquip(
     val name: String,
     val category: EquipCategory,
     val reinforcement: Long,
-    val rank: String
+    val rank: String,
+    val isEquipped: Boolean
 )
 
 data class EquipData(

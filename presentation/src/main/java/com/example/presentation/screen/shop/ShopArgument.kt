@@ -33,6 +33,7 @@ sealed interface ShopIntent {
     data class OnBuyEquipClick(val equipId: Long) : ShopIntent
     data class OnConfirmBuyItem(val itemId: Long, val quantity: Int) : ShopIntent
     data class OnConfirmBuyEquip(val equipId: Long) : ShopIntent
+    data object OnDismissBuyDialog : ShopIntent
     data object Refresh : ShopIntent
 
     data class OnItemFilterChange(val filter: ItemFilterType) : ShopIntent

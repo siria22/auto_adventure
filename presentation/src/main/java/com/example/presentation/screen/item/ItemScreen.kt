@@ -86,12 +86,6 @@ fun ItemScreen(
         }
     }
 
-    var itemFilterMenuExpanded by remember { mutableStateOf(false) }
-    var itemSortMenuExpanded by remember { mutableStateOf(false) }
-    var equipFilterMenuExpanded by remember { mutableStateOf(false) }
-    var equipSortMenuExpanded by remember { mutableStateOf(false) }
-
-
     if (showDialog && selectedInventoryItem != null && selectedItemDetail != null) {
         ItemDetailDialog(
             itemName = selectedItemDetail.name,
@@ -214,213 +208,243 @@ fun ItemScreen(
             }
         }
     ) { innerPadding ->
-        Column(modifier = Modifier.padding(innerPadding)) {
-            Image(
-                painter = painterResource(id = R.drawable.bg_shop),
-                contentDescription = "Shop Background",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(250.dp),
-                contentScale = ContentScale.Crop
-            )
+        ItemScreenContent(
+            modifier = Modifier.padding(innerPadding),
+            selectedTab = selectedTab,
+            onTabChange = { selectedTab = it },
+            itemData = itemData,
+            equipData = equipData,
+            itemArgument = itemArgument,
+            onEquipIntent = onEquipIntent,
+            onItemClick = { item ->
+                itemArgument.intent(ItemIntent.OnItemClick(item.itemId))
+                selectedInventoryItem = item
+                showDialog = true
+            },
+            onEquipClick = { equip ->
+                onEquipIntent(ItemIntent.OnEquipClick(equip.customizedId))
+                showEquipDialog = true
+            }
+        )
+    }
+}
 
-            SecondaryTabRow(
-                selectedTabIndex = selectedTab.ordinal,
-                containerColor = Color(0xFF878787),
-                indicator = { }
-            ) {
-                ItemTab.values().forEach { tab ->
-                    Tab(
-                        selected = selectedTab == tab,
-                        onClick = { selectedTab = tab },
-                        text = {
+@Composable
+fun ItemScreenContent(
+    modifier: Modifier = Modifier,
+    selectedTab: ItemTab,
+    onTabChange: (ItemTab) -> Unit,
+    itemData: ItemData,
+    equipData: EquipData,
+    itemArgument: ItemArgument,
+    onEquipIntent: (ItemIntent) -> Unit,
+    onItemClick: (InventoryItem) -> Unit,
+    onEquipClick: (DisplayedEquip) -> Unit
+) {
+    var itemFilterMenuExpanded by remember { mutableStateOf(false) }
+    var itemSortMenuExpanded by remember { mutableStateOf(false) }
+    var equipFilterMenuExpanded by remember { mutableStateOf(false) }
+    var equipSortMenuExpanded by remember { mutableStateOf(false) }
+
+    Column(modifier = modifier) {
+        Image(
+            painter = painterResource(id = R.drawable.bg_shop),
+            contentDescription = "Shop Background",
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(250.dp),
+            contentScale = ContentScale.Crop
+        )
+
+        SecondaryTabRow(
+            selectedTabIndex = selectedTab.ordinal,
+            containerColor = Color(0xFF878787),
+            indicator = { }
+        ) {
+            ItemTab.values().forEach { tab ->
+                Tab(
+                    selected = selectedTab == tab,
+                    onClick = { onTabChange(tab) },
+                    text = {
+                        Text(
+                            text = tab.displayName,
+                            style = MaterialTheme.typography.titleMedium
+                        )
+                    },
+                    selectedContentColor = Color.Black,
+                    unselectedContentColor = Color.Black,
+                    modifier = Modifier
+                        .height(50.dp)
+                        .background(
+                            if (selectedTab == tab) Color(0xFFC3C3C3) else Color.Transparent
+                        )
+                )
+            }
+        }
+
+        when (selectedTab) {
+            ItemTab.ITEM -> {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp, horizontal = 16.dp),
+                    horizontalArrangement = Arrangement.End,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.clickable { itemFilterMenuExpanded = true }
+                        ) {
                             Text(
-                                text = tab.displayName,
-                                style = MaterialTheme.typography.titleMedium
+                                text = itemData.selectedFilter.displayName,
+                                style = MaterialTheme.typography.bodyMedium
                             )
-                        },
-                        selectedContentColor = Color.Black,
-                        unselectedContentColor = Color.Black,
-                        modifier = Modifier
-                            .height(50.dp)
-                            .background(
-                                if (selectedTab == tab) Color(0xFFC3C3C3) else Color.Transparent
+                            Icon(Icons.Default.ArrowDropDown, contentDescription = "Filter")
+                        }
+                        DropdownMenu(
+                            expanded = itemFilterMenuExpanded,
+                            onDismissRequest = { itemFilterMenuExpanded = false }
+                        ) {
+                            ItemFilterType.values().forEach { filterType ->
+                                DropdownMenuItem(
+                                    text = { Text(filterType.displayName) },
+                                    onClick = {
+                                        itemArgument.intent(ItemIntent.OnFilterChange(filterType))
+                                        itemFilterMenuExpanded = false
+                                    }
+                                )
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.width(16.dp))
+
+                    Box {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.clickable { itemSortMenuExpanded = true }
+                        ) {
+                            Text(
+                                text = itemData.selectedSort.displayName,
+                                style = MaterialTheme.typography.bodyMedium
                             )
-                    )
+                            Icon(Icons.Default.ArrowDropDown, contentDescription = "Sort")
+                        }
+                        DropdownMenu(
+                            expanded = itemSortMenuExpanded,
+                            onDismissRequest = { itemSortMenuExpanded = false }
+                        ) {
+                            ItemSortType.values().forEach { sortType ->
+                                DropdownMenuItem(
+                                    text = { Text(sortType.displayName) },
+                                    onClick = {
+                                        itemArgument.intent(ItemIntent.OnSortChange(sortType))
+                                        itemSortMenuExpanded = false
+                                    }
+                                )
+                            }
+                        }
+                    }
+                }
+
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(4),
+                    modifier = Modifier.weight(1f),
+                    contentPadding = PaddingValues(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    items(itemData.displayedItems) { item ->
+                        Box(modifier = Modifier.clickable { onItemClick(item) }) {
+                            ItemCard(
+                                imageUrl = R.drawable.ic_potion_red,
+                                quantity = item.amount.toInt()
+                            )
+                        }
+                    }
                 }
             }
 
-            when (selectedTab) {
-                ItemTab.ITEM -> {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 8.dp, horizontal = 16.dp),
-                        horizontalArrangement = Arrangement.End,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Box {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.clickable { itemFilterMenuExpanded = true }
-                            ) {
-                                Text(
-                                    text = itemData.selectedFilter.displayName,
-                                    style = MaterialTheme.typography.bodyMedium
-                                )
-                                Icon(Icons.Default.ArrowDropDown, contentDescription = "Filter")
-                            }
-                            DropdownMenu(
-                                expanded = itemFilterMenuExpanded,
-                                onDismissRequest = { itemFilterMenuExpanded = false }
-                            ) {
-                                ItemFilterType.values().forEach { filterType ->
-                                    DropdownMenuItem(
-                                        text = { Text(filterType.displayName) },
-                                        onClick = {
-                                            itemArgument.intent(ItemIntent.OnFilterChange(filterType))
-                                            itemFilterMenuExpanded = false
-                                        }
-                                    )
-                                }
-                            }
+            ItemTab.EQUIP -> {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp, horizontal = 16.dp),
+                    horizontalArrangement = Arrangement.End,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.clickable { equipFilterMenuExpanded = true }
+                        ) {
+                            Text(
+                                text = equipData.selectedFilter.displayName,
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                            Icon(Icons.Default.ArrowDropDown, contentDescription = "Filter")
                         }
-
-                        Spacer(modifier = Modifier.width(16.dp))
-
-                        Box {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.clickable { itemSortMenuExpanded = true }
-                            ) {
-                                Text(
-                                    text = itemData.selectedSort.displayName,
-                                    style = MaterialTheme.typography.bodyMedium
+                        DropdownMenu(
+                            expanded = equipFilterMenuExpanded,
+                            onDismissRequest = { equipFilterMenuExpanded = false }
+                        ) {
+                            EquipFilterType.values().forEach { filterType ->
+                                DropdownMenuItem(
+                                    text = { Text(filterType.displayName) },
+                                    onClick = {
+                                        onEquipIntent(ItemIntent.OnEquipFilterChange(filterType))
+                                        equipFilterMenuExpanded = false
+                                    }
                                 )
-                                Icon(Icons.Default.ArrowDropDown, contentDescription = "Sort")
-                            }
-                            DropdownMenu(
-                                expanded = itemSortMenuExpanded,
-                                onDismissRequest = { itemSortMenuExpanded = false }
-                            ) {
-                                ItemSortType.values().forEach { sortType ->
-                                    DropdownMenuItem(
-                                        text = { Text(sortType.displayName) },
-                                        onClick = {
-                                            itemArgument.intent(ItemIntent.OnSortChange(sortType))
-                                            itemSortMenuExpanded = false
-                                        }
-                                    )
-                                }
                             }
                         }
                     }
 
-                    LazyVerticalGrid(
-                        columns = GridCells.Fixed(4),
-                        modifier = Modifier.weight(1f),
-                        contentPadding = PaddingValues(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(10.dp),
-                        horizontalArrangement = Arrangement.spacedBy(10.dp)
-                    ) {
-                        items(itemData.displayedItems) { item ->
-                            Box(modifier = Modifier.clickable {
-                                itemArgument.intent(ItemIntent.OnItemClick(item.itemId))
-                                selectedInventoryItem = item
-                                showDialog = true
-                            }) {
-                                ItemCard(
-                                    imageUrl = R.drawable.ic_potion_red,
-                                    quantity = item.amount.toInt()
+                    Spacer(modifier = Modifier.width(16.dp))
+
+                    Box {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.clickable { equipSortMenuExpanded = true }
+                        ) {
+                            Text(
+                                text = equipData.selectedSort.displayName,
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                            Icon(Icons.Default.ArrowDropDown, contentDescription = "Sort")
+                        }
+                        DropdownMenu(
+                            expanded = equipSortMenuExpanded,
+                            onDismissRequest = { equipSortMenuExpanded = false }
+                        ) {
+                            EquipSortType.values().forEach { sortType ->
+                                DropdownMenuItem(
+                                    text = { Text(sortType.displayName) },
+                                    onClick = {
+                                        onEquipIntent(ItemIntent.OnEquipSortChange(sortType))
+                                        equipSortMenuExpanded = false
+                                    }
                                 )
                             }
                         }
                     }
                 }
 
-                ItemTab.EQUIP -> {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 8.dp, horizontal = 16.dp),
-                        horizontalArrangement = Arrangement.End,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Box {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.clickable { equipFilterMenuExpanded = true }
-                            ) {
-                                Text(
-                                    text = equipData.selectedFilter.displayName,
-                                    style = MaterialTheme.typography.bodyMedium
-                                )
-                                Icon(Icons.Default.ArrowDropDown, contentDescription = "Filter")
-                            }
-                            DropdownMenu(
-                                expanded = equipFilterMenuExpanded,
-                                onDismissRequest = { equipFilterMenuExpanded = false }
-                            ) {
-                                EquipFilterType.values().forEach { filterType ->
-                                    DropdownMenuItem(
-                                        text = { Text(filterType.displayName) },
-                                        onClick = {
-                                            onEquipIntent(ItemIntent.OnEquipFilterChange(filterType))
-                                            equipFilterMenuExpanded = false
-                                        }
-                                    )
-                                }
-                            }
-                        }
-
-                        Spacer(modifier = Modifier.width(16.dp))
-
-                        Box {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.clickable { equipSortMenuExpanded = true }
-                            ) {
-                                Text(
-                                    text = equipData.selectedSort.displayName,
-                                    style = MaterialTheme.typography.bodyMedium
-                                )
-                                Icon(Icons.Default.ArrowDropDown, contentDescription = "Sort")
-                            }
-                            DropdownMenu(
-                                expanded = equipSortMenuExpanded,
-                                onDismissRequest = { equipSortMenuExpanded = false }
-                            ) {
-                                EquipSortType.values().forEach { sortType ->
-                                    DropdownMenuItem(
-                                        text = { Text(sortType.displayName) },
-                                        onClick = {
-                                            onEquipIntent(ItemIntent.OnEquipSortChange(sortType))
-                                            equipSortMenuExpanded = false
-                                        }
-                                    )
-                                }
-                            }
-                        }
-                    }
-
-                    LazyVerticalGrid(
-                        columns = GridCells.Fixed(4),
-                        modifier = Modifier.weight(1f),
-                        contentPadding = PaddingValues(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(10.dp),
-                        horizontalArrangement = Arrangement.spacedBy(10.dp)
-                    ) {
-                        items(equipData.displayedEquipments) { displayedEquip ->
-                            Box(modifier = Modifier.clickable {
-                                onEquipIntent(ItemIntent.OnEquipClick(displayedEquip.customizedId))
-                                showEquipDialog = true
-                            }) {
-                                EquipCard(
-                                    imageUrl = R.drawable.ic_ironsword,
-                                    reinforcement = displayedEquip.reinforcement,
-                                    isEquipped = displayedEquip.customizedId % 2 == 1L // TODO: 실제 장착 상태 로직 필요 (현재는 임시)
-                                )
-                            }
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(4),
+                    modifier = Modifier.weight(1f),
+                    contentPadding = PaddingValues(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    items(equipData.displayedEquipments) { displayedEquip ->
+                        Box(modifier = Modifier.clickable { onEquipClick(displayedEquip) }) {
+                            EquipCard(
+                                imageUrl = R.drawable.ic_ironsword,
+                                reinforcement = displayedEquip.reinforcement,
+                                isEquipped = displayedEquip.isEquipped
+                            )
                         }
                     }
                 }
@@ -440,7 +464,7 @@ private sealed interface SellTarget {
     ) : SellTarget
 }
 
-private enum class ItemTab(val displayName: String) {
+enum class ItemTab(val displayName: String) {
     ITEM("Item"),
     EQUIP("Equip")
 }
@@ -463,9 +487,7 @@ private fun ItemScreenPreview() {
             )
         },
         selectedFilter = ItemFilterType.ALL,
-        selectedSort = ItemSortType.DEFAULT,
-        totalWeight = 15.5,
-        maxWeight = 100.0
+        selectedSort = ItemSortType.DEFAULT
     )
     val dummyEquipData = EquipData.empty()
 

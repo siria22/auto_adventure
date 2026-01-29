@@ -15,12 +15,12 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -58,14 +58,26 @@ fun EquipDetailDialog(
                         } else {
                             equipDetail.name
                         }
-                        Text(text = fullName, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                        Text(
+                            text = fullName,
+                            style = MaterialTheme.typography.labelLarge
+                        )
                         Spacer(modifier = Modifier.height(4.dp))
 
-                        Text(text = "착용자: ${equipDetail.ownerName}", fontSize = 14.sp)
+                        Text(
+                            text = "착용자: ${equipDetail.ownerName}",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
 
-                        Text(text = equipDetail.statDescription, fontSize = 14.sp)
+                        Text(
+                            text = equipDetail.statDescription,
+                            style = MaterialTheme.typography.bodyMedium
+                        )
 
-                        Text(text = "획득 방법: ${equipDetail.obtainMethod}", fontSize = 14.sp)
+                        Text(
+                            text = "획득 방법: ${equipDetail.obtainMethod}",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
                     }
                 }
 
@@ -75,7 +87,7 @@ fun EquipDetailDialog(
 
                 Text(
                     text = equipDetail.description,
-                    fontSize = 14.sp,
+                    style = MaterialTheme.typography.bodyMedium,
                     lineHeight = 20.sp
                 )
 

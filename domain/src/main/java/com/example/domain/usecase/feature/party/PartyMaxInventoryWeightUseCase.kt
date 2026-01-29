@@ -1,4 +1,4 @@
-package com.example.domain.usecase.party
+package com.example.domain.usecase.feature.party
 
 import com.example.domain.repository.feature.party.PartyRepository
 import javax.inject.Inject
@@ -6,7 +6,7 @@ import javax.inject.Inject
 private const val BASE_WEIGHT = 50.0
 private const val STRENGTH_WEIGHT_RATIO = 2.0
 
-open class PartyUseCase @Inject constructor(
+open class PartyMaxInventoryWeightUseCase @Inject constructor(
     private val partyRepository: PartyRepository
 ) {
     open suspend fun getMaxInventoryWeight(partyId: Long): Double {

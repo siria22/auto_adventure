@@ -7,7 +7,7 @@ import kotlinx.serialization.json.Json
 import javax.inject.Inject
 
 class ItemProvider @Inject constructor(
-    @ApplicationContext private val context: Context
+    @param:ApplicationContext private val context: Context
 ) {
     private val items: List<ItemEntity> by lazy {
         parseItems()

@@ -17,7 +17,6 @@ interface GuildRepository {
 
     suspend fun setGold(value: Long)
     suspend fun updateGold(amount: Long)
-    suspend fun getGold(): Long
 
     fun observeGold(): Flow<Long>
 }

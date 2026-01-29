@@ -88,7 +88,7 @@ fun ShopScreen(
             price = data.selectedItemToBuy.buyPrice,
             maxQuantity = 99,
             disableBuyReason = if (maxBuyable < 1) "골드가 부족합니다" else null,
-            onDismiss = { argument.intent(ShopIntent.OnConfirmBuyItem(0, 0)) },
+            onDismiss = { argument.intent(ShopIntent.OnDismissBuyDialog) },
             onBuy = { quantity ->
                 argument.intent(ShopIntent.OnConfirmBuyItem(data.selectedItemToBuy.id, quantity))
             }
@@ -104,30 +104,14 @@ fun ShopScreen(
             price = data.selectedEquipToBuy.buyPrice,
             maxQuantity = 1,
             disableBuyReason = if (!canBuy) "골드가 부족합니다" else null,
-            onDismiss = { argument.intent(ShopIntent.OnConfirmBuyEquip(0)) },
+            onDismiss = { argument.intent(ShopIntent.OnDismissBuyDialog) },
             onBuy = { _ ->
                 argument.intent(ShopIntent.OnConfirmBuyEquip(data.selectedEquipToBuy.id))
             }
         )
     }
 
-    ShopScreenContent(
-        data = data,
-        onIntent = argument.intent,
-        onBackClick = { navController.popBackStack() }
-    )
-}
-
-@Composable
-fun ShopScreenContent(
-    data: ShopData,
-    onIntent: (ShopIntent) -> Unit,
-    onBackClick: () -> Unit
-) {
     var selectedTab by remember { mutableStateOf(ShopTab.ITEM) }
-
-    var filterExpanded by remember { mutableStateOf(false) }
-    var sortExpanded by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -143,7 +127,7 @@ fun ShopScreenContent(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    IconButton(onClick = onBackClick) {
+                    IconButton(onClick = { navController.popBackStack() }) {
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Back",
@@ -168,201 +152,225 @@ fun ShopScreenContent(
             }
         }
     ) { innerPadding ->
-        Column(modifier = Modifier.padding(innerPadding)) {
-            Box(
+        ShopScreenContent(
+            modifier = Modifier.padding(innerPadding),
+            data = data,
+            selectedTab = selectedTab,
+            onTabChange = { selectedTab = it },
+            onIntent = argument.intent
+        )
+    }
+}
+
+@Composable
+fun ShopScreenContent(
+    modifier: Modifier = Modifier,
+    data: ShopData,
+    selectedTab: ShopTab,
+    onTabChange: (ShopTab) -> Unit,
+    onIntent: (ShopIntent) -> Unit
+) {
+    var filterExpanded by remember { mutableStateOf(false) }
+    var sortExpanded by remember { mutableStateOf(false) }
+
+    Column(modifier = modifier) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(250.dp)
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.bg_shop),
+                contentDescription = "Shop Background",
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop
+            )
+
+            Surface(
+                color = Color.White.copy(alpha = 0.8f),
+                shape = RoundedCornerShape(8.dp),
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(250.dp)
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.bg_shop),
-                    contentDescription = "Shop Background",
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop
-                )
-
-                Surface(
-                    color = Color.White.copy(alpha = 0.8f),
-                    shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .padding(16.dp)
-                ) {
-                    Text(
-                        text = "${data.userGold} G",
-                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
-                        style = MaterialTheme.typography.labelLarge
-                    )
-                }
-            }
-
-            SecondaryTabRow(
-                selectedTabIndex = selectedTab.ordinal,
-                containerColor = Color(0xFF878787),
-                indicator = { }
-            ) {
-                ShopTab.values().forEach { tab ->
-                    Tab(
-                        selected = selectedTab == tab,
-                        onClick = { selectedTab = tab },
-                        text = {
-                            Text(
-                                text = tab.displayName,
-                                style = MaterialTheme.typography.titleMedium
-                            )
-                        },
-                        selectedContentColor = Color.Black,
-                        unselectedContentColor = Color.Black.copy(alpha = 0.6f),
-                        modifier = Modifier
-                            .height(50.dp)
-                            .background(
-                                if (selectedTab == tab) Color(0xFFC3C3C3) else Color.Transparent
-                            )
-                    )
-                }
-            }
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 12.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+                    .align(Alignment.TopEnd)
+                    .padding(16.dp)
             ) {
                 Text(
-                    text = "판매 목록",
-                    style = MaterialTheme.typography.labelLarge,
-                    color = Color.Black
+                    text = "${data.userGold} G",
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                    style = MaterialTheme.typography.labelLarge
                 )
+            }
+        }
 
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Box {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
+        SecondaryTabRow(
+            selectedTabIndex = selectedTab.ordinal,
+            containerColor = Color(0xFF878787),
+            indicator = { }
+        ) {
+            ShopTab.values().forEach { tab ->
+                Tab(
+                    selected = selectedTab == tab,
+                    onClick = { onTabChange(tab) },
+                    text = {
+                        Text(
+                            text = tab.displayName,
+                            style = MaterialTheme.typography.titleMedium
+                        )
+                    },
+                    selectedContentColor = Color.Black,
+                    unselectedContentColor = Color.Black.copy(alpha = 0.6f),
+                    modifier = Modifier
+                        .height(50.dp)
+                        .background(
+                            if (selectedTab == tab) Color(0xFFC3C3C3) else Color.Transparent
+                        )
+                )
+            }
+        }
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 12.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "판매 목록",
+                style = MaterialTheme.typography.labelLarge,
+                color = Color.Black
+            )
+
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .clickable { filterExpanded = true }
+                            .padding(4.dp)
+                    ) {
+                        Text(
+                            text = if (selectedTab == ShopTab.ITEM) data.itemFilter.displayName else data.equipFilter.displayName,
+                            style = MaterialTheme.typography.labelMedium
+                        )
+                        Icon(
+                            imageVector = Icons.Default.Menu,
+                            contentDescription = "Filter",
                             modifier = Modifier
-                                .clickable { filterExpanded = true }
-                                .padding(4.dp)
-                        ) {
-                            Text(
-                                text = if (selectedTab == ShopTab.ITEM) data.itemFilter.displayName else data.equipFilter.displayName,
-                                style = MaterialTheme.typography.labelMedium
-                            )
-                            Icon(
-                                imageVector = Icons.Default.Menu,
-                                contentDescription = "Filter",
-                                modifier = Modifier
-                                    .padding(start = 4.dp)
-                                    .size(20.dp)
-                            )
-                        }
-                        DropdownMenu(
-                            expanded = filterExpanded,
-                            onDismissRequest = { filterExpanded = false }
-                        ) {
-                            if (selectedTab == ShopTab.ITEM) {
-                                ItemFilterType.values().forEach { type ->
-                                    DropdownMenuItem(
-                                        text = { Text(type.displayName) },
-                                        onClick = {
-                                            onIntent(ShopIntent.OnItemFilterChange(type))
-                                            filterExpanded = false
-                                        }
-                                    )
-                                }
-                            } else {
-                                EquipFilterType.values().forEach { type ->
-                                    DropdownMenuItem(
-                                        text = { Text(type.displayName) },
-                                        onClick = {
-                                            onIntent(ShopIntent.OnEquipFilterChange(type))
-                                            filterExpanded = false
-                                        }
-                                    )
-                                }
-                            }
-                        }
+                                .padding(start = 4.dp)
+                                .size(20.dp)
+                        )
                     }
-
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(text = "|", fontSize = 14.sp, color = Color.Gray)
-                    Spacer(modifier = Modifier.width(8.dp))
-
-                    Box {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier
-                                .clickable { sortExpanded = true }
-                                .padding(4.dp)
-                        ) {
-                            Text(
-                                text = if (selectedTab == ShopTab.ITEM) data.itemSort.displayName else data.equipSort.displayName,
-                                style = MaterialTheme.typography.labelMedium
-                            )
-                            Icon(
-                                imageVector = Icons.Default.Menu,
-                                contentDescription = "Sort",
-                                modifier = Modifier
-                                    .padding(start = 4.dp)
-                                    .size(20.dp)
-                            )
-                        }
-                        DropdownMenu(
-                            expanded = sortExpanded,
-                            onDismissRequest = { sortExpanded = false }
-                        ) {
-                            ShopSortType.values().forEach { type ->
+                    DropdownMenu(
+                        expanded = filterExpanded,
+                        onDismissRequest = { filterExpanded = false }
+                    ) {
+                        if (selectedTab == ShopTab.ITEM) {
+                            ItemFilterType.values().forEach { type ->
                                 DropdownMenuItem(
                                     text = { Text(type.displayName) },
                                     onClick = {
-                                        if (selectedTab == ShopTab.ITEM) {
-                                            onIntent(ShopIntent.OnItemSortChange(type))
-                                        } else {
-                                            onIntent(ShopIntent.OnEquipSortChange(type))
-                                        }
-                                        sortExpanded = false
+                                        onIntent(ShopIntent.OnItemFilterChange(type))
+                                        filterExpanded = false
+                                    }
+                                )
+                            }
+                        } else {
+                            EquipFilterType.values().forEach { type ->
+                                DropdownMenuItem(
+                                    text = { Text(type.displayName) },
+                                    onClick = {
+                                        onIntent(ShopIntent.OnEquipFilterChange(type))
+                                        filterExpanded = false
                                     }
                                 )
                             }
                         }
                     }
                 }
-            }
 
-            when (selectedTab) {
-                ShopTab.ITEM -> {
-                    LazyColumn(
-                        modifier = Modifier.weight(1f),
-                        contentPadding = PaddingValues(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = "|",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.Gray
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+
+                Box {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .clickable { sortExpanded = true }
+                            .padding(4.dp)
                     ) {
-                        items(data.items) { item ->
-                            val imageRes = getItemIcon(item.category)
-                            ShopListItem(
-                                imageUrl = imageRes,
-                                name = item.name,
-                                description = item.shortDescription,
-                                price = item.buyPrice,
-                                onClick = { onIntent(ShopIntent.OnBuyItemClick(item.id)) }
+                        Text(
+                            text = if (selectedTab == ShopTab.ITEM) data.itemSort.displayName else data.equipSort.displayName,
+                            style = MaterialTheme.typography.labelMedium
+                        )
+                        Icon(
+                            imageVector = Icons.Default.Menu,
+                            contentDescription = "Sort",
+                            modifier = Modifier
+                                .padding(start = 4.dp)
+                                .size(20.dp)
+                        )
+                    }
+                    DropdownMenu(
+                        expanded = sortExpanded,
+                        onDismissRequest = { sortExpanded = false }
+                    ) {
+                        ShopSortType.values().forEach { type ->
+                            DropdownMenuItem(
+                                text = { Text(type.displayName) },
+                                onClick = {
+                                    if (selectedTab == ShopTab.ITEM) {
+                                        onIntent(ShopIntent.OnItemSortChange(type))
+                                    } else {
+                                        onIntent(ShopIntent.OnEquipSortChange(type))
+                                    }
+                                    sortExpanded = false
+                                }
                             )
                         }
                     }
                 }
-                ShopTab.EQUIP -> {
-                    LazyColumn(
-                        modifier = Modifier.weight(1f),
-                        contentPadding = PaddingValues(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        items(data.baseEquips) { equip ->
-                            val imageRes = getEquipIcon(equip.category)
-                            ShopListItem(
-                                imageUrl = imageRes,
-                                name = equip.name,
-                                description = equip.description,
-                                price = equip.buyPrice,
-                                onClick = { onIntent(ShopIntent.OnBuyEquipClick(equip.id)) }
-                            )
-                        }
+            }
+        }
+
+        when (selectedTab) {
+            ShopTab.ITEM -> {
+                LazyColumn(
+                    modifier = Modifier.weight(1f),
+                    contentPadding = PaddingValues(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    items(data.items) { item ->
+                        val imageRes = getItemIcon(item.category)
+                        ShopListItem(
+                            imageUrl = imageRes,
+                            name = item.name,
+                            description = item.shortDescription,
+                            price = item.buyPrice,
+                            onClick = { onIntent(ShopIntent.OnBuyItemClick(item.id)) }
+                        )
+                    }
+                }
+            }
+            ShopTab.EQUIP -> {
+                LazyColumn(
+                    modifier = Modifier.weight(1f),
+                    contentPadding = PaddingValues(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    items(data.baseEquips) { equip ->
+                        val imageRes = getEquipIcon(equip.category)
+                        ShopListItem(
+                            imageUrl = imageRes,
+                            name = equip.name,
+                            description = equip.description,
+                            price = equip.buyPrice,
+                            onClick = { onIntent(ShopIntent.OnBuyEquipClick(equip.id)) }
+                        )
                     }
                 }
             }
@@ -412,8 +420,7 @@ fun ShopListItem(
             ) {
                 Text(
                     text = name,
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = FontWeight.Bold
+                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold)
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
@@ -433,7 +440,7 @@ fun ShopListItem(
     }
 }
 
-private enum class ShopTab(val displayName: String) {
+enum class ShopTab(val displayName: String) {
     ITEM("Item"),
     EQUIP("Equip")
 }
