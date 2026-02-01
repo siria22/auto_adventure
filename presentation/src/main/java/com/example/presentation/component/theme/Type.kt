@@ -89,7 +89,7 @@ val NanumTypography = Typography(
         fontFamily = NanumBarunGothic,
         fontWeight = FontWeight.Normal,
         fontSize = 12.sp,
-        lineHeight = 28.sp,
+        lineHeight = 18.sp,
         letterSpacing = 0.sp
     ),
 )

@@ -1,0 +1,503 @@
+package com.example.presentation.screen.item
+
+import android.widget.Toast
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SecondaryTabRow
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Tab
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import com.example.domain.model.feature.inventory.InventoryItem
+import com.example.domain.model.feature.types.EquipFilterType
+import com.example.domain.model.feature.types.ItemFilterType
+import com.example.presentation.R
+import com.example.presentation.component.theme.AutoAdventureTheme
+import com.example.presentation.component.ui.molecule.item.EquipCard
+import com.example.presentation.component.ui.molecule.item.ItemCard
+import kotlinx.coroutines.flow.MutableSharedFlow
+
+@Composable
+fun ItemScreen(
+    navController: NavController,
+    itemArgument: ItemArgument,
+    itemData: ItemData,
+    equipData: EquipData,
+    onEquipIntent: (ItemIntent) -> Unit
+) {
+    var selectedTab by remember { mutableStateOf(ItemTab.ITEM) }
+
+    var showDialog by remember { mutableStateOf(false) }
+    var showEquipDialog by remember { mutableStateOf(false) }
+    var selectedInventoryItem by remember { mutableStateOf<InventoryItem?>(null) }
+
+    var showSellDialog by remember { mutableStateOf(false) }
+    var sellTarget by remember { mutableStateOf<SellTarget?>(null) }
+
+
+    val selectedItemDetail = itemArgument.selectedItemDetail
+
+    val context = LocalContext.current
+
+    LaunchedEffect(itemArgument.event) {
+        itemArgument.event.collect { event ->
+            if (event is ItemEvent.DataFetch.Error) {
+                Toast.makeText(context, event.userMessage, Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    if (showDialog && selectedInventoryItem != null && selectedItemDetail != null) {
+        ItemDetailDialog(
+            itemName = selectedItemDetail.name,
+            itemShortDesc = selectedItemDetail.shortDescription,
+            itemFullDesc = selectedItemDetail.fullDescription,
+            itemObtainMethod = selectedItemDetail.obtainMethods.joinToString(),
+            quantity = selectedInventoryItem!!.amount.toInt(),
+            onDismiss = { showDialog = false },
+            onSellClick = {
+                sellTarget = SellTarget.Item(selectedInventoryItem!!, selectedItemDetail)
+                showSellDialog = true
+                showDialog = false
+            }
+        )
+    }
+
+    if (showEquipDialog && itemArgument.selectedEquipDetail != null) {
+        EquipDetailDialog(
+            equipDetail = itemArgument.selectedEquipDetail!!,
+            onDismiss = { showEquipDialog = false },
+            onSellClick = {
+                sellTarget = SellTarget.Equip(itemArgument.selectedEquipDetail!!)
+                showSellDialog = true
+                showEquipDialog = false
+            },
+            onReinforceClick = {
+                onEquipIntent(ItemIntent.OnRequestReinforce(itemArgument.selectedEquipDetail!!.id))
+                showEquipDialog = false
+            }
+        )
+    }
+
+    if (itemArgument.reinforceUiState != null) {
+        val state = itemArgument.reinforceUiState!!
+        ReinforceDialog(
+            equipName = state.targetEquip.name,
+            currentReinforcement = state.targetEquip.reinforcement,
+            imageUrl = state.imageUrl,
+            materials = state.materials,
+            onDismiss = { onEquipIntent(ItemIntent.OnDismissReinforce) },
+            onReinforce = { onEquipIntent(ItemIntent.OnExecuteReinforce(state.targetEquip.id)) }
+        )
+    }
+
+    if (showSellDialog && sellTarget != null) {
+        val target = sellTarget!!
+        when (target) {
+            is SellTarget.Item -> {
+                SellDialog(
+                    imageUrl = R.drawable.ic_potion_red, // TODO: 실제 아이템 이미지 매핑 필요
+                    name = target.itemDetail.name,
+                    price = target.itemDetail.sellPrice,
+                    maxQuantity = target.inventoryItem.amount.toInt(),
+                    onDismiss = { showSellDialog = false },
+                    onSell = { quantity ->
+                        itemArgument.intent(
+                            ItemIntent.OnSellItem(
+                                target.inventoryItem.itemId,
+                                quantity
+                            )
+                        )
+                        showSellDialog = false
+                    }
+                )
+            }
+
+            is SellTarget.Equip -> {
+                SellDialog(
+                    imageUrl = R.drawable.ic_ironsword,
+                    name = target.equipDetail.name,
+                    price = target.equipDetail.sellPrice,
+                    maxQuantity = 1,
+                    onDismiss = { showSellDialog = false },
+                    onSell = { _ ->
+                        onEquipIntent(ItemIntent.OnSellEquip(target.equipDetail.id))
+                        showSellDialog = false
+                    },
+                    disableSellReason = if (target.equipDetail.ownerId != 0L) "착용 중인 장비는 판매할 수 없습니다!" else null
+                )
+            }
+        }
+    }
+
+    Scaffold(
+        topBar = {
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                color = Color(0xFFDEDEDE),
+                shadowElevation = 4.dp
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back",
+                            tint = Color.Black,
+                            modifier = Modifier.size(32.dp)
+                        )
+                    }
+                    Text(
+                        text = "인벤토리",
+                        style = MaterialTheme.typography.titleLarge,
+                        color = Color.Black,
+                    )
+                    IconButton(onClick = { /* TODO */ }) {
+                        Icon(
+                            Icons.Default.Info,
+                            contentDescription = "Info",
+                            tint = Color.Black,
+                            modifier = Modifier.size(32.dp)
+                        )
+                    }
+                }
+            }
+        }
+    ) { innerPadding ->
+        ItemScreenContent(
+            modifier = Modifier.padding(innerPadding),
+            selectedTab = selectedTab,
+            onTabChange = { selectedTab = it },
+            itemData = itemData,
+            equipData = equipData,
+            itemArgument = itemArgument,
+            onEquipIntent = onEquipIntent,
+            onItemClick = { item ->
+                itemArgument.intent(ItemIntent.OnItemClick(item.itemId))
+                selectedInventoryItem = item
+                showDialog = true
+            },
+            onEquipClick = { equip ->
+                onEquipIntent(ItemIntent.OnEquipClick(equip.customizedId))
+                showEquipDialog = true
+            }
+        )
+    }
+}
+
+@Composable
+fun ItemScreenContent(
+    modifier: Modifier = Modifier,
+    selectedTab: ItemTab,
+    onTabChange: (ItemTab) -> Unit,
+    itemData: ItemData,
+    equipData: EquipData,
+    itemArgument: ItemArgument,
+    onEquipIntent: (ItemIntent) -> Unit,
+    onItemClick: (InventoryItem) -> Unit,
+    onEquipClick: (DisplayedEquip) -> Unit
+) {
+    var itemFilterMenuExpanded by remember { mutableStateOf(false) }
+    var itemSortMenuExpanded by remember { mutableStateOf(false) }
+    var equipFilterMenuExpanded by remember { mutableStateOf(false) }
+    var equipSortMenuExpanded by remember { mutableStateOf(false) }
+
+    Column(modifier = modifier) {
+        Image(
+            painter = painterResource(id = R.drawable.bg_shop),
+            contentDescription = "Shop Background",
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(250.dp),
+            contentScale = ContentScale.Crop
+        )
+
+        SecondaryTabRow(
+            selectedTabIndex = selectedTab.ordinal,
+            containerColor = Color(0xFF878787),
+            indicator = { }
+        ) {
+            ItemTab.values().forEach { tab ->
+                Tab(
+                    selected = selectedTab == tab,
+                    onClick = { onTabChange(tab) },
+                    text = {
+                        Text(
+                            text = tab.displayName,
+                            style = MaterialTheme.typography.titleMedium
+                        )
+                    },
+                    selectedContentColor = Color.Black,
+                    unselectedContentColor = Color.Black,
+                    modifier = Modifier
+                        .height(50.dp)
+                        .background(
+                            if (selectedTab == tab) Color(0xFFC3C3C3) else Color.Transparent
+                        )
+                )
+            }
+        }
+
+        when (selectedTab) {
+            ItemTab.ITEM -> {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp, horizontal = 16.dp),
+                    horizontalArrangement = Arrangement.End,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.clickable { itemFilterMenuExpanded = true }
+                        ) {
+                            Text(
+                                text = itemData.selectedFilter.displayName,
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                            Icon(Icons.Default.ArrowDropDown, contentDescription = "Filter")
+                        }
+                        DropdownMenu(
+                            expanded = itemFilterMenuExpanded,
+                            onDismissRequest = { itemFilterMenuExpanded = false }
+                        ) {
+                            ItemFilterType.values().forEach { filterType ->
+                                DropdownMenuItem(
+                                    text = { Text(filterType.displayName) },
+                                    onClick = {
+                                        itemArgument.intent(ItemIntent.OnFilterChange(filterType))
+                                        itemFilterMenuExpanded = false
+                                    }
+                                )
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.width(16.dp))
+
+                    Box {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.clickable { itemSortMenuExpanded = true }
+                        ) {
+                            Text(
+                                text = itemData.selectedSort.displayName,
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                            Icon(Icons.Default.ArrowDropDown, contentDescription = "Sort")
+                        }
+                        DropdownMenu(
+                            expanded = itemSortMenuExpanded,
+                            onDismissRequest = { itemSortMenuExpanded = false }
+                        ) {
+                            ItemSortType.values().forEach { sortType ->
+                                DropdownMenuItem(
+                                    text = { Text(sortType.displayName) },
+                                    onClick = {
+                                        itemArgument.intent(ItemIntent.OnSortChange(sortType))
+                                        itemSortMenuExpanded = false
+                                    }
+                                )
+                            }
+                        }
+                    }
+                }
+
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(4),
+                    modifier = Modifier.weight(1f),
+                    contentPadding = PaddingValues(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    items(itemData.displayedItems) { item ->
+                        Box(modifier = Modifier.clickable { onItemClick(item) }) {
+                            ItemCard(
+                                imageUrl = R.drawable.ic_potion_red,
+                                quantity = item.amount.toInt()
+                            )
+                        }
+                    }
+                }
+            }
+
+            ItemTab.EQUIP -> {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp, horizontal = 16.dp),
+                    horizontalArrangement = Arrangement.End,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.clickable { equipFilterMenuExpanded = true }
+                        ) {
+                            Text(
+                                text = equipData.selectedFilter.displayName,
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                            Icon(Icons.Default.ArrowDropDown, contentDescription = "Filter")
+                        }
+                        DropdownMenu(
+                            expanded = equipFilterMenuExpanded,
+                            onDismissRequest = { equipFilterMenuExpanded = false }
+                        ) {
+                            EquipFilterType.values().forEach { filterType ->
+                                DropdownMenuItem(
+                                    text = { Text(filterType.displayName) },
+                                    onClick = {
+                                        onEquipIntent(ItemIntent.OnEquipFilterChange(filterType))
+                                        equipFilterMenuExpanded = false
+                                    }
+                                )
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.width(16.dp))
+
+                    Box {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.clickable { equipSortMenuExpanded = true }
+                        ) {
+                            Text(
+                                text = equipData.selectedSort.displayName,
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                            Icon(Icons.Default.ArrowDropDown, contentDescription = "Sort")
+                        }
+                        DropdownMenu(
+                            expanded = equipSortMenuExpanded,
+                            onDismissRequest = { equipSortMenuExpanded = false }
+                        ) {
+                            EquipSortType.values().forEach { sortType ->
+                                DropdownMenuItem(
+                                    text = { Text(sortType.displayName) },
+                                    onClick = {
+                                        onEquipIntent(ItemIntent.OnEquipSortChange(sortType))
+                                        equipSortMenuExpanded = false
+                                    }
+                                )
+                            }
+                        }
+                    }
+                }
+
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(4),
+                    modifier = Modifier.weight(1f),
+                    contentPadding = PaddingValues(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    items(equipData.displayedEquipments) { displayedEquip ->
+                        Box(modifier = Modifier.clickable { onEquipClick(displayedEquip) }) {
+                            EquipCard(
+                                imageUrl = R.drawable.ic_ironsword,
+                                reinforcement = displayedEquip.reinforcement,
+                                isEquipped = displayedEquip.isEquipped
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+private sealed interface SellTarget {
+    data class Item(
+        val inventoryItem: InventoryItem,
+        val itemDetail: com.example.domain.model.feature.inventory.Item
+    ) : SellTarget
+
+    data class Equip(
+        val equipDetail: EquipDetail
+    ) : SellTarget
+}
+
+enum class ItemTab(val displayName: String) {
+    ITEM("Item"),
+    EQUIP("Equip")
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun ItemScreenPreview() {
+    val dummyArgument = ItemArgument(
+        state = ItemState.Init,
+        intent = { },
+        event = MutableSharedFlow(),
+        selectedItemDetail = null
+    )
+    val dummyItemData = ItemData(
+        displayedItems = (1..20).map {
+            InventoryItem(
+                itemId = it.toLong(),
+                partyId = 1,
+                amount = (1..99).random().toLong()
+            )
+        },
+        selectedFilter = ItemFilterType.ALL,
+        selectedSort = ItemSortType.DEFAULT
+    )
+    val dummyEquipData = EquipData.empty()
+
+    AutoAdventureTheme {
+        ItemScreen(
+            navController = NavController(LocalContext.current),
+            itemArgument = dummyArgument,
+            itemData = dummyItemData,
+            equipData = dummyEquipData,
+            onEquipIntent = {}
+        )
+    }
+}

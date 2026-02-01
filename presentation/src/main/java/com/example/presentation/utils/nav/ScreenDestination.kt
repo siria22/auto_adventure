@@ -6,4 +6,9 @@ sealed class ScreenDestinations(val route: String) {
         data object Test : ScreenDestinations("home/test")
     }
 
+    data object Item : ScreenDestinations("item") {
+        data object Test : ScreenDestinations("item/test")
+    }
+
+    data object Shop : ScreenDestinations("shop")
 }

@@ -7,4 +7,5 @@ interface CustomizedEquipRepository {
     suspend fun getAllEquips(): List<CustomizedEquip>
     suspend fun getEquipById(id: Long): CustomizedEquip?
     suspend fun getEquipsByOwnerId(ownerId: Long): List<CustomizedEquip>
+    suspend fun deleteEquip(equip: CustomizedEquip)
 }

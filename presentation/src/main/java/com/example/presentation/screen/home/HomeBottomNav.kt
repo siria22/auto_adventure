@@ -19,7 +19,10 @@ import com.example.presentation.R
 import com.example.presentation.component.theme.AutoAdventureTheme
 
 @Composable
-fun BottomNavBar() {
+fun BottomNavBar(
+    onNavigateToItem: () -> Unit,
+    onNavigateToShop: () -> Unit,
+) {
     /* TODO : Background for Bottom Nav Items */
     Row(
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -29,12 +32,12 @@ fun BottomNavBar() {
         IconBox(
             iconRes = painterResource(id = R.drawable.home),
             name = "Item",
-            onClicked = { /* TODO : Navigate to Item */ }
+            onClicked = onNavigateToItem
         )
         IconBox(
             iconRes = painterResource(id = R.drawable.home),
             name = "Shop",
-            onClicked = { /* TODO : Navigate to Shop */ }
+            onClicked = onNavigateToShop
         )
         IconBox(
             iconRes = painterResource(id = R.drawable.home),
@@ -54,20 +57,22 @@ private fun IconBox(
     iconRes: Painter,
     name: String,
     onClicked: () -> Unit
-){
+) {
     Column(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.clickable{
-            onClicked()
-        }.size(60.dp)
+        modifier = Modifier
+            .clickable {
+                onClicked()
+            }
+            .size(60.dp)
     ) {
         Image(
             painter = iconRes,
             contentDescription = "Icon $iconRes"
         )
         Text(
-           text = name
+            text = name
         )
     }
 }
@@ -76,6 +81,6 @@ private fun IconBox(
 @Composable
 private fun BottomNavBarPreview() {
     AutoAdventureTheme {
-        BottomNavBar()
+        BottomNavBar({}, {})
     }
 }

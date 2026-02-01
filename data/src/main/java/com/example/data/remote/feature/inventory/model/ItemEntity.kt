@@ -38,8 +38,8 @@ data class ItemEntity(
     val isUsable: Boolean,
 
     @SerialName("effect_type")
-    val effectType: String,
+    val effectType: String = "UNKNOWN",
 
     @SerialName("effect_amount")
-    val effectAmount: Long
+    val effectAmount: Long = 0L
 )

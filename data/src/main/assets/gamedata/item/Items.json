@@ -26,7 +26,7 @@
     "obtain_method": ["QUEST_REWARD", "SHOP"],
     "is_sellable": true,
     "buy_price": 50,
-    "sell_price": 20,
+    "sell_price": 2000,
     "is_usable": false
   },
   {

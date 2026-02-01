@@ -13,7 +13,6 @@ import com.example.domain.model.feature.types.EquipCategory
 import com.example.domain.model.feature.types.ItemCategory
 import com.example.domain.model.feature.types.ItemEffectType
 import com.example.domain.model.feature.types.ObtainMethod
-import com.example.domain.model.feature.types.StatType
 
 fun ItemEntity.toDomain(): Item {
     return Item(
@@ -29,7 +28,9 @@ fun ItemEntity.toDomain(): Item {
         buyPrice = this.buyPrice,
         sellPrice = this.sellPrice,
         isUsable = this.isUsable,
-        effectType = runCatching { ItemEffectType.valueOf(this.effectType) }.getOrDefault(ItemEffectType.UNKNOWN),
+        effectType = runCatching { ItemEffectType.valueOf(this.effectType) }.getOrDefault(
+            ItemEffectType.UNKNOWN
+        ),
         effectAmount = this.effectAmount
     )
 }
@@ -72,7 +73,7 @@ fun BaseEquipEntity.toDomain(): BaseEquip {
         baseRequiredAgility = this.baseRequiredAgility,
         baseRequiredIntelligence = this.baseRequiredIntelligence,
         baseRequiredLuck = this.baseRequiredLuck,
-        increaseStat = StatType.valueOf(this.increaseStat),
+        increaseStat = ActorAttributeType.valueOf(this.increaseStat),
         increaseAmount = this.increaseAmount,
         maxReinforcement = this.maxReinforcement,
         buyPrice = this.buyPrice,
