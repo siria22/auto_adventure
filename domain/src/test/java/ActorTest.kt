@@ -17,6 +17,7 @@ import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
+import com.example.domain.model.feature.types.PartyPosition
 
 /**
  * 파티 시스템 전체 시나리오 테스트

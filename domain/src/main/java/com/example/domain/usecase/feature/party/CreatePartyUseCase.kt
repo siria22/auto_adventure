@@ -10,7 +10,7 @@ class CreatePartyUseCase @Inject constructor(
     suspend operator fun invoke(): Result<Unit> {
         val currentParties = partyRepository.getAllParties()
 
-        if (currentParties.size >= 4) {
+        if (currentParties.size > 3) {
             return Result.failure(IllegalStateException("파티는 최대 4개까지만 생성할 수 있습니다."))
         }
 

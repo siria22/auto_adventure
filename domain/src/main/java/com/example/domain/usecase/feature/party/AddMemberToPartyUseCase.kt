@@ -1,6 +1,7 @@
 package com.example.domain.usecase.feature.party
 
 import com.example.domain.model.feature.party.PartyMember
+import com.example.domain.model.feature.types.PartyPosition
 import com.example.domain.repository.feature.party.PartyMemberRepository
 import javax.inject.Inject
 
@@ -10,7 +11,7 @@ class AddMemberToPartyUseCase @Inject constructor(
     suspend operator fun invoke(partyId: Long, actorId: Long): Result<Unit> {
         val partyMembers = partyMemberRepository.getMembersByPartyId(partyId)
 
-        if (partyMembers.size >= 4) {
+        if (partyMembers.size > 3) {
             return Result.failure(IllegalStateException("파티원은 최대 4명까지만 가능합니다."))
         }
 
@@ -29,7 +30,7 @@ class AddMemberToPartyUseCase @Inject constructor(
             characterId = actorId,
             partyId = partyId,
             isPartyLeader = isLeader,
-            position = "FRONT",
+            position = PartyPosition.FRONT,
             slotIndex = availableSlot
         )
 
