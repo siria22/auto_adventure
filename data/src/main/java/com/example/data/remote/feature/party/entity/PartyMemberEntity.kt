@@ -36,8 +36,11 @@ data class PartyMemberEntity(
     val partyId: Long,
 
     @ColumnInfo(name = "is_party_leader")
-    val isPartyLeader: Boolean, // todo : UseCase에서 파티 리더 유일성 보장
+    val isPartyLeader: Boolean,
 
     @ColumnInfo(name = "position")
-    val position: String // FRONT | BACK
+    val position: String,
+
+    @ColumnInfo(name = "slot_index")
+    val slotIndex: Int
 )

@@ -1,6 +1,7 @@
 package com.example.data.remote.feature.party.dao
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
@@ -19,4 +20,7 @@ interface PartyDao {
 
     @Query("SELECT * FROM party WHERE name = :name")
     suspend fun getPartyByName(name: String): PartyEntity?
+
+    @Delete
+    suspend fun delete(party: PartyEntity)
 }

@@ -48,7 +48,8 @@ fun PartyMemberEntity.toDomain(): PartyMember {
         characterId = this.actorId,
         partyId = this.partyId,
         isPartyLeader = this.isPartyLeader,
-        position = this.position
+        position = this.position,
+        slotIndex = this.slotIndex
     )
 }
 
@@ -57,6 +58,7 @@ fun PartyMember.toEntity(): PartyMemberEntity{
         actorId = this.characterId,
         partyId = this.partyId,
         isPartyLeader = this.isPartyLeader,
-        position = this.position
+        position = this.position,
+        slotIndex = this.slotIndex
     )
 }
