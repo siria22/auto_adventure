@@ -6,6 +6,7 @@ import com.example.data.remote.feature.party.entity.PartyMemberEntity
 import com.example.domain.model.feature.party.Party
 import com.example.domain.model.feature.party.PartyAction
 import com.example.domain.model.feature.party.PartyMember
+import com.example.domain.model.feature.types.PartyPosition
 
 fun PartyEntity.toDomain(): Party {
     return Party(
@@ -48,15 +49,17 @@ fun PartyMemberEntity.toDomain(): PartyMember {
         characterId = this.actorId,
         partyId = this.partyId,
         isPartyLeader = this.isPartyLeader,
-        position = this.position
+        position = runCatching { PartyPosition.valueOf(this.position) }.getOrDefault(PartyPosition.FRONT),
+        slotIndex = this.slotIndex
     )
 }
 
-fun PartyMember.toEntity(): PartyMemberEntity{
+fun PartyMember.toEntity(): PartyMemberEntity {
     return PartyMemberEntity(
         actorId = this.characterId,
         partyId = this.partyId,
         isPartyLeader = this.isPartyLeader,
-        position = this.position
+        position = this.position.name,
+        slotIndex = this.slotIndex
     )
 }

@@ -25,4 +25,16 @@ class PartyMemberRepositoryImpl @Inject constructor(
     override suspend fun updatePartyLeader(actorId: Long, isPartyLeader: Boolean) {
         partyMemberDao.updatePartyLeader(actorId, isPartyLeader)
     }
+
+    override suspend fun deleteMember(member: PartyMember) {
+        partyMemberDao.delete(member.toEntity())
+    }
+
+    override suspend fun getNextLeader(partyId: Long): PartyMember? {
+        return partyMemberDao.getNextLeader(partyId)?.toDomain()
+    }
+
+    override suspend fun getOccupiedSlots(partyId: Long): List<Int> {
+        return partyMemberDao.getOccupiedSlots(partyId)
+    }
 }

@@ -1,194 +1,187 @@
 package com.example.domain
 
-import com.example.domain.model.feature.inventory.InventoryItem
-import com.example.domain.model.feature.inventory.Item
 import com.example.domain.model.feature.party.Party
-import com.example.domain.model.feature.party.PartyWithMembers
-import com.example.domain.model.feature.types.ItemCategory
-import com.example.domain.model.feature.types.ItemEffectType
-import com.example.domain.repository.feature.inventory.InventoryRepository
-import com.example.domain.repository.feature.inventory.ItemRepository
+import com.example.domain.model.feature.party.PartyMember
+import com.example.domain.repository.feature.party.PartyMemberRepository
 import com.example.domain.repository.feature.party.PartyRepository
-import com.example.domain.usecase.inventory.AddOrUpdateItemUseCase
-import com.example.domain.usecase.feature.party.PartyMaxInventoryWeightUseCase
+import com.example.domain.usecase.feature.party.AddMemberToPartyUseCase
+import com.example.domain.usecase.feature.party.CreatePartyUseCase
+import com.example.domain.usecase.feature.party.DisbandPartyUseCase
+import com.example.domain.usecase.feature.party.RemoveMemberFromPartyUseCase
+import com.example.domain.usecase.feature.party.ReplacePartyMemberUseCase
 import kotlinx.coroutines.runBlocking
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
+import com.example.domain.model.feature.types.PartyPosition
 
-class AddOrUpdateItemUseCaseTest {
+/**
+ * 파티 시스템 전체 시나리오 테스트
+ * (생성 -> 멤버추가 -> 교체 -> 제외/리더승계 -> 해체)
+ */
+class PartyUseCaseTest {
 
-    // --- Fake Implementations ---
+    // --- 1. Fake Repository (메모리 DB 역할) ---
 
-    class FakeInventoryRepository : InventoryRepository {
-        private val inventory = mutableListOf<InventoryItem>()
-        override suspend fun getInventoryByPartyId(partyId: Long): List<InventoryItem> =
-            inventory.filter { it.partyId == partyId }
-
-        override suspend fun getAllInventories(): List<InventoryItem> = inventory
-        override suspend fun findItem(partyId: Long, itemId: Long): InventoryItem? =
-            inventory.find { it.partyId == partyId && it.itemId == itemId }
-
-        override suspend fun insertInventory(inventoryItem: InventoryItem) {
-            inventory.add(inventoryItem)
-        }
-
-        override suspend fun updateInventory(inventoryItem: InventoryItem) {
-            val index =
-                inventory.indexOfFirst { it.partyId == inventoryItem.partyId && it.itemId == inventoryItem.itemId }
-            if (index != -1) inventory[index] = inventoryItem
-        }
-
-        override suspend fun deleteInventory(inventoryItem: InventoryItem) {
-            inventory.removeIf { it.partyId == inventoryItem.partyId && it.itemId == inventoryItem.itemId }
-        }
-    }
-
-    class FakeItemRepository(private val items: List<Item>) : ItemRepository {
-        override suspend fun getItemList(): List<Item> = items
-        override suspend fun getItemById(id: Long): Result<Item> {
-            return items.find { it.id == id }?.let { Result.success(it) } ?: Result.failure(
-                NoSuchElementException("Item not found")
-            )
-        }
-    }
-
-    // PartyUseCase가 의존하는 PartyRepository의 Fake 구현
     class FakePartyRepository : PartyRepository {
-        override suspend fun getPartyWithMembers(partyId: Long): PartyWithMembers? = null
-        override suspend fun insertParty(party: Party): Result<Unit> = Result.success(Unit)
-        override suspend fun getAllParties(): List<Party> = emptyList()
-        override suspend fun getPartyById(id: Long): Party? = null
-        override suspend fun getPartyByName(name: String): Party? = null // <-- 이 줄이 추가되었습니다.
-    }
+        val parties = mutableListOf<Party>()
+        private var nextId = 1L
 
-    // 이제 partyRepository를 제대로 넘겨줄 수 있음
-    class FakePartyUseCase(private val maxWeight: Double) :
-        PartyMaxInventoryWeightUseCase(partyRepository = FakePartyRepository()) {
-        override suspend fun getMaxInventoryWeight(partyId: Long): Double {
-            return maxWeight
+        override suspend fun insertParty(party: Party): Result<Unit> {
+            val newParty = party.copy(id = nextId++)
+            parties.add(newParty)
+            return Result.success(Unit)
         }
+
+        override suspend fun getAllParties(): List<Party> = parties
+        override suspend fun getPartyById(id: Long): Party? = parties.find { it.id == id }
+        override suspend fun getPartyByName(name: String): Party? = parties.find { it.name == name }
+        override suspend fun deleteParty(party: Party) {
+            parties.removeIf { it.id == party.id }
+        }
+
+        override suspend fun getPartyWithMembers(partyId: Long): Nothing? = null
     }
 
-    // --- Test Setup ---
+    class FakePartyMemberRepository : PartyMemberRepository {
+        val members = mutableListOf<PartyMember>()
 
-    private lateinit var addOrUpdateItemUseCase: AddOrUpdateItemUseCase
-    private lateinit var fakeInventoryRepository: FakeInventoryRepository
-    private lateinit var fakeItemRepository: FakeItemRepository
-    private lateinit var fakePartyUseCase: FakePartyUseCase
+        override suspend fun insertMember(member: PartyMember) {
+            members.add(member)
+        }
 
-    private val heavyPotion = Item(id = 1L, name = "Heavy Potion", shortDescription = "", fullDescription = "", category = ItemCategory.HEALING, weight = 10.0, maxStackSize = 10, obtainMethods = emptyList(), isSellable = false, buyPrice = 0, sellPrice = 0, isUsable = true, effectType = ItemEffectType.HEAL, effectAmount = 100L)
-    private val lightPotion = Item(id = 2L, name = "Light Potion", shortDescription = "", fullDescription = "", category = ItemCategory.HEALING, weight = 1.0, maxStackSize = 20, obtainMethods = emptyList(), isSellable = false, buyPrice = 0, sellPrice = 0, isUsable = true, effectType = ItemEffectType.HEAL, effectAmount = 20L)
+        override suspend fun getMembersByPartyId(partyId: Long): List<PartyMember> =
+            members.filter { it.partyId == partyId }
+
+        override suspend fun getPartyByCharacterId(characterId: Long): PartyMember? =
+            members.find { it.characterId == characterId }
+
+        override suspend fun updatePartyLeader(actorId: Long, isPartyLeader: Boolean) {
+            val idx = members.indexOfFirst { it.characterId == actorId }
+            if (idx != -1) members[idx] = members[idx].copy(isPartyLeader = isPartyLeader)
+        }
+
+        override suspend fun deleteMember(member: PartyMember) {
+            members.removeIf { it.characterId == member.characterId && it.partyId == member.partyId }
+        }
+
+        // 리더 승계 로직 (슬롯 번호가 가장 작은 멤버)
+        override suspend fun getNextLeader(partyId: Long): PartyMember? =
+            members.filter { it.partyId == partyId }.minByOrNull { it.slotIndex }
+
+        override suspend fun getOccupiedSlots(partyId: Long): List<Int> =
+            members.filter { it.partyId == partyId }.map { it.slotIndex }
+    }
+
+    // --- 2. UseCases & Setup ---
+
+    private lateinit var fakePartyRepo: FakePartyRepository
+    private lateinit var fakeMemberRepo: FakePartyMemberRepository
+
+    private lateinit var createParty: CreatePartyUseCase
+    private lateinit var disbandParty: DisbandPartyUseCase
+    private lateinit var addMember: AddMemberToPartyUseCase
+    private lateinit var removeMember: RemoveMemberFromPartyUseCase
+    private lateinit var replaceMember: ReplacePartyMemberUseCase
 
     @Before
     fun setUp() {
-        fakeInventoryRepository = FakeInventoryRepository()
-        fakeItemRepository = FakeItemRepository(listOf(heavyPotion, lightPotion)) // 리스트에 포션 추가
-        fakePartyUseCase = FakePartyUseCase(maxWeight = 100.0)
+        fakePartyRepo = FakePartyRepository()
+        fakeMemberRepo = FakePartyMemberRepository()
 
-        addOrUpdateItemUseCase = AddOrUpdateItemUseCase(
-            fakeInventoryRepository,
-            fakeItemRepository,
-            fakePartyUseCase
-        )
+        createParty = CreatePartyUseCase(fakePartyRepo)
+        disbandParty = DisbandPartyUseCase(fakePartyRepo)
+        addMember = AddMemberToPartyUseCase(fakeMemberRepo)
+        removeMember = RemoveMemberFromPartyUseCase(fakeMemberRepo)
+        replaceMember = ReplacePartyMemberUseCase(fakeMemberRepo)
     }
 
-    // --- Tests ---
+    // --- 3. Helper Function (상태 출력) ---
 
-    @Test
-    fun `invoke should add new item successfully`() = runBlocking {
-        // Given
-        println("--- 신규 아이템 추가 성공 테스트 시작 ---")
-        val partyId = 1L
-        val itemToAdd = lightPotion
-        val amountToAdd = 5L
-        println("테스트 준비: 인벤토리가 비어있음")
+    private fun printPartyStatus(partyId: Long, stepTitle: String) = runBlocking {
+        println("\n========================================")
+        println("STEP: $stepTitle")
+        println("========================================")
 
-        // When
-        println("실행: 무게 ${itemToAdd.weight}짜리 아이템 ${amountToAdd}개 추가 시도...")
-        val result = addOrUpdateItemUseCase(partyId, itemToAdd.id, amountToAdd)
+        val party = fakePartyRepo.getPartyById(partyId)
+        if (party == null) {
+            println("▶ 파티 상태: [해체됨/존재하지 않음]")
+            return@runBlocking
+        }
 
-        // Then
-        println("결과: $result")
-        assertTrue(result.isSuccess)
-        val inventoryItem = fakeInventoryRepository.findItem(partyId, itemToAdd.id)
-        assertNotNull(inventoryItem)
-        assertEquals(amountToAdd, inventoryItem?.amount)
-        println("검증 완료: 인벤토리에 가벼운 포션 ${inventoryItem?.amount}개가 정상적으로 추가됨")
-        println("-----------------------------------\n")
+        println("▶ 파티명: ${party.name} (ID: ${party.id})")
+
+        val members = fakeMemberRepo.getMembersByPartyId(partyId).sortedBy { it.slotIndex }
+        if (members.isEmpty()) {
+            println("▶ 멤버: 없음")
+        } else {
+            println("▶ 멤버 목록 (${members.size}/4):")
+            members.forEach { m ->
+                val role = if (m.isPartyLeader) "[★리더]" else "[멤버]"
+                println("   - Slot ${m.slotIndex} | $role | 캐릭터 ID: ${m.characterId}")
+            }
+        }
+        println("----------------------------------------\n")
     }
 
-    @Test
-    fun `invoke should update existing item amount successfully`() = runBlocking {
-        // Given
-        println("--- 기존 아이템 수량 변경 성공 테스트 시작 ---")
-        val partyId = 1L
-        val itemToAdd = lightPotion
-        val initialAmount = 10L
-        val amountToAdd = 5L
-        fakeInventoryRepository.insertInventory(InventoryItem(partyId, itemToAdd.id, initialAmount))
-        println("테스트 준비: 인벤토리에 가벼운 포션 ${initialAmount}개 있음")
-
-        // When
-        println("실행: 가벼운 포션 ${amountToAdd}개 추가 시도...")
-        val result = addOrUpdateItemUseCase(partyId, itemToAdd.id, amountToAdd)
-
-        // Then
-        println("결과: $result")
-        assertTrue(result.isSuccess)
-        val inventoryItem = fakeInventoryRepository.findItem(partyId, itemToAdd.id)
-        assertNotNull(inventoryItem)
-        assertEquals(initialAmount + amountToAdd, inventoryItem?.amount)
-        println("검증 완료: 가벼운 포션의 총 수량이 ${inventoryItem?.amount}개로 정상적으로 변경됨")
-        println("---------------------------------------\n")
-    }
+    // --- 4. Main Scenario Test ---
 
     @Test
-    fun `invoke should fail when adding item exceeds max weight`() = runBlocking {
-        // Given
-        println("--- 무게 초과 실패 테스트 시작 ---")
+    fun `partyFullScenarioTest`() = runBlocking {
+        println(">>> 파티 시스템 전체 시나리오 테스트 시작 <<<")
+
+        // 1. 파티 생성
+        val createResult = createParty()
+        assertTrue(createResult.isSuccess)
         val partyId = 1L
-        val itemToAdd = heavyPotion
-        val amountToAdd = 1L
+        printPartyStatus(partyId, "1. 파티 생성")
 
-        fakeInventoryRepository.insertInventory(InventoryItem(partyId, heavyPotion.id, 9)) // 90.0
-        fakeInventoryRepository.insertInventory(InventoryItem(partyId, lightPotion.id, 5)) // 5.0
-        println("테스트 준비: 현재 총 무게 95.0 (최대 무게: 100.0)")
+        // 2. 멤버 추가 (4명 풀 파티)
+        // 100(리더), 101, 102, 103 순서로 추가됨
+        addMember(partyId, 100L)
+        addMember(partyId, 101L)
+        addMember(partyId, 102L)
+        addMember(partyId, 103L)
+        printPartyStatus(partyId, "2. 멤버 4명 추가 (풀 파티)")
 
-        // When
-        println("실행: 무게 ${itemToAdd.weight}짜리 아이템 ${amountToAdd}개 추가 시도...")
-        val result = addOrUpdateItemUseCase(partyId, itemToAdd.id, amountToAdd)
+        val leader = fakeMemberRepo.getMembersByPartyId(partyId).find { it.isPartyLeader }
+        assertEquals(100L, leader?.characterId)
 
-        // Then
-        println("결과: $result")
-        assertTrue(result.isFailure)
-        assertEquals("인벤토리 무게 한도를 초과합니다.", result.exceptionOrNull()?.message)
-        println("검증 완료: 무게 한도 초과로 정상적으로 실패함")
-        println("-----------------------------\n")
-    }
+        // 3. 파티원 교체 (Replace)
+        // 상황: Slot 1에 있는 101번(멤버)을 -> 200번(새 멤버)으로 교체
+        // 기대: 101번 삭제, 200번 추가 (Slot 1 유지, 리더 아님)
+        val replaceResult = replaceMember(partyId, 101L, 200L)
+        assertTrue("교체 성공해야 함", replaceResult.isSuccess)
+        printPartyStatus(partyId, "3. 파티원 교체 (101 -> 200)")
 
-    @Test
-    fun `invoke should add items partially when exceeding max weight`() = runBlocking {
-        // Given
-        println("--- 무게 한도 내 부분 추가 테스트 시작 ---")
-        val partyId = 1L
-        val itemToAdd = lightPotion // 무게 1.0
-        val initialAmount = 97L
-        val amountToAdd = 5L
-        fakeInventoryRepository.insertInventory(InventoryItem(partyId, itemToAdd.id, initialAmount))
-        println("테스트 준비: 현재 무게 97.0 (가벼운 포션 ${initialAmount}개), 최대 무게 100.0")
+        val newMember = fakeMemberRepo.getMembersByPartyId(partyId).find { it.characterId == 200L }
+        assertNotNull(newMember)
+        assertEquals("교체된 멤버는 기존 멤버의 Slot 1을 승계해야 함", 1, newMember!!.slotIndex)
+        assertFalse("교체된 멤버는 리더가 아니어야 함", newMember.isPartyLeader)
 
-        // When
-        println("실행: 무게 ${itemToAdd.weight}짜리 아이템 ${amountToAdd}개 추가 시도...")
-        val result = addOrUpdateItemUseCase(partyId, itemToAdd.id, amountToAdd)
+        // 4. 멤버 제외 및 리더 승계 (Remove)
+        // 상황: 100번(리더, Slot 0)을 파티에서 제외
+        // 기대: 100번 삭제, 남은 멤버 중 가장 앞 슬롯(Slot 1의 200번)이 리더가 되어야 함
+        val removeResult = removeMember(partyId, 100L)
+        assertTrue("제외 성공해야 함", removeResult.isSuccess)
+        printPartyStatus(partyId, "4. 리더(100) 제외 및 리더 승계")
 
-        // Then
-        println("결과: $result")
-        assertTrue(result.isSuccess)
-        val inventoryItem = fakeInventoryRepository.findItem(partyId, itemToAdd.id)
-        assertNotNull(inventoryItem)
-        assertEquals(100L, inventoryItem?.amount) // 97 + 3 = 100
-        println("검증 완료: 가벼운 포션 3개만 추가되어 총 수량이 ${inventoryItem?.amount}개가 됨")
-        println("---------------------------------------")
+        val nextLeader = fakeMemberRepo.getMembersByPartyId(partyId).find { it.isPartyLeader }
+        assertNotNull("새로운 리더가 선출되어야 함", nextLeader)
+        assertEquals("Slot 1에 있는 200번이 리더가 되어야 함", 200L, nextLeader!!.characterId)
+
+        // 5. 파티 해체 (Disband)
+        val disbandResult = disbandParty(partyId)
+        assertTrue("해체 성공해야 함", disbandResult.isSuccess)
+        printPartyStatus(partyId, "5. 파티 해체")
+
+        val deletedParty = fakePartyRepo.getPartyById(partyId)
+        assertNull("파티 데이터가 삭제되어야 함", deletedParty)
+
+        println(">>> 테스트 검증 완료 <<<")
     }
 }

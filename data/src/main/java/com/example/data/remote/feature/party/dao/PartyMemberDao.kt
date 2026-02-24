@@ -1,6 +1,7 @@
 package com.example.data.remote.feature.party.dao
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
@@ -20,4 +21,13 @@ interface PartyMemberDao {
 
     @Query("UPDATE party_member SET is_party_leader = :isPartyLeader WHERE actor_id = :actorId")
     suspend fun updatePartyLeader(actorId: Long, isPartyLeader: Boolean)
+
+    @Delete
+    suspend fun delete(member: PartyMemberEntity)
+
+    @Query("SELECT * FROM party_member WHERE party_id = :partyId ORDER BY slot_index ASC LIMIT 1")
+    suspend fun getNextLeader(partyId: Long): PartyMemberEntity?
+
+    @Query("SELECT slot_index FROM party_member WHERE party_id = :partyId")
+    suspend fun getOccupiedSlots(partyId: Long): List<Int>
 }

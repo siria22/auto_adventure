@@ -7,4 +7,7 @@ interface PartyMemberRepository {
     suspend fun getMembersByPartyId(partyId: Long): List<PartyMember>
     suspend fun getPartyByCharacterId(characterId: Long): PartyMember?
     suspend fun updatePartyLeader(actorId: Long, isPartyLeader: Boolean)
+    suspend fun deleteMember(member: PartyMember)
+    suspend fun getNextLeader(partyId: Long): PartyMember?
+    suspend fun getOccupiedSlots(partyId: Long): List<Int>
 }

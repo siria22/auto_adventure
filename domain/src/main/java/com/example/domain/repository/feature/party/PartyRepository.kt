@@ -10,4 +10,5 @@ interface PartyRepository {
     suspend fun getAllParties(): List<Party>
     suspend fun getPartyById(id: Long): Party?
     suspend fun getPartyByName(name: String): Party?
+    suspend fun deleteParty(party: Party)
 }
