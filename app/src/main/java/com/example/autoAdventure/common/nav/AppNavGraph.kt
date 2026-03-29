@@ -6,6 +6,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import com.example.presentation.screen.home.homeDestination
 import com.example.presentation.screen.item.itemDestination
+import com.example.presentation.screen.party.partyDetailDestination
 import com.example.presentation.screen.shop.shopDestination
 import com.example.presentation.utils.nav.ScreenDestinations
 
@@ -22,5 +23,6 @@ fun AppNavGraph(modifier: Modifier = Modifier) {
         homeDestination(navController = navController)
         itemDestination(navController = navController)
         shopDestination(navController = navController)
+        partyDetailDestination(navController = navController)
     }
 }

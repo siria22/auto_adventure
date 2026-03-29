@@ -11,4 +11,10 @@ sealed class ScreenDestinations(val route: String) {
     }
 
     data object Shop : ScreenDestinations("shop")
+
+    data object Party : ScreenDestinations("party") {
+        data object Test : ScreenDestinations("party_detail/{partyId}")
+    }
+
+    data object Adventure : ScreenDestinations("adventure")
 }

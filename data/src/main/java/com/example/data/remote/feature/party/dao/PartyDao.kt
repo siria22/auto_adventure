@@ -10,7 +10,7 @@ import com.example.data.remote.feature.party.entity.PartyEntity
 @Dao
 interface PartyDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(party: PartyEntity)
+    suspend fun insert(party: PartyEntity): Long
 
     @Query("SELECT * FROM party")
     suspend fun getAllParties(): List<PartyEntity>

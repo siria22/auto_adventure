@@ -10,8 +10,8 @@ import javax.inject.Inject
 class ActorRepositoryImpl @Inject constructor(
     private val actorDao: ActorDao
 ) : ActorRepository {
-    override suspend fun insertActor(actor: BaseActor) {
-        actorDao.insert(actor.toEntity())
+    override suspend fun insertActor(actor: BaseActor): Long {
+        return actorDao.insert(actor.toEntity())
     }
 
     override suspend fun getAllActors(): List<BaseActor> {
@@ -28,5 +28,9 @@ class ActorRepositoryImpl @Inject constructor(
 
     override suspend fun getRecruitedActorCount(): Int {
         return actorDao.getRecruitedActorCount()
+    }
+
+    override suspend fun getAvailableActors(): List<BaseActor> {
+        return actorDao.getAvailableActors().map { it.toDomain() }
     }
 }

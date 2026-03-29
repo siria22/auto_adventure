@@ -7,7 +7,7 @@ import javax.inject.Inject
 class CreatePartyUseCase @Inject constructor(
     private val partyRepository: PartyRepository
 ) {
-    suspend operator fun invoke(): Result<Unit> {
+    suspend operator fun invoke(): Result<Long> {
         val currentParties = partyRepository.getAllParties()
 
         if (currentParties.size > 3) {
