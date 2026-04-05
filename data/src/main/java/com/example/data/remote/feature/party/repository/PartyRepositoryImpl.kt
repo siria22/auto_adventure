@@ -4,7 +4,6 @@ import com.example.data.remote.feature.party.dao.PartyDao
 import com.example.data.remote.feature.party.dao.PartyMemberDao
 import com.example.data.remote.feature.party.toDomain
 import com.example.data.remote.feature.party.toEntity
-import com.example.domain.exception.PartyFullException
 import com.example.domain.model.feature.party.Party
 import com.example.domain.model.feature.party.PartyWithMembers
 import com.example.domain.repository.feature.party.PartyRepository
@@ -14,7 +13,7 @@ class PartyRepositoryImpl @Inject constructor(
     private val partyDao: PartyDao,
     private val partyMemberDao: PartyMemberDao
 ) : PartyRepository {
-    override suspend fun insertParty(party: Party): Result<Unit> = runCatching {
+    override suspend fun insertParty(party: Party): Result<Long> = runCatching {
         partyDao.insert(party.toEntity())
     }.onFailure { ex ->
         return Result.failure(ex)

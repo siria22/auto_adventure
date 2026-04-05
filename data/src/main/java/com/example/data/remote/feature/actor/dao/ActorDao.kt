@@ -9,7 +9,7 @@ import com.example.data.remote.feature.actor.entity.ActorEntity
 @Dao
 interface ActorDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(actor: ActorEntity)
+    suspend fun insert(actor: ActorEntity): Long
 
     @Query("SELECT * FROM actor")
     suspend fun getAllActors(): List<ActorEntity>
@@ -22,4 +22,7 @@ interface ActorDao {
 
     @Query("SELECT COUNT(*) FROM actor WHERE recruited_at IS NOT NULL")
     suspend fun getRecruitedActorCount(): Int
+
+    @Query("SELECT * FROM actor WHERE actor_id NOT IN (SELECT actor_id FROM party_member)")
+    suspend fun getAvailableActors(): List<ActorEntity>
 }
